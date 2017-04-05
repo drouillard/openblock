@@ -1,0 +1,14 @@
+# Project
+*.log
+node_modules
+tmp
+data
+
+# Linux
+*~
+
+# JetBrains
+.idea
+
+# OS X
+.DS_Store
