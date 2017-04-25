@@ -53,3 +53,74 @@ For Raspberry Pi 3 we could use the following command assuming we are using the 
 ```
 scp -r ./ pi@<Raspberry PI 3 ip>:~/openblock
 ```
+
+
+
+
+### Puppeth
+
+To begin, ensure you have setup SSH keys on all nodes.
+
+#### Configure genesis block
+
+Run
+
+```
+./puppeth
+```
+
+Then enter prompts
+
+Network name: openblock
+Consensus: Clique
+Block times: 15
+Valid addresses
+
+Accounts to seal
+
+0000000000000000000000000000000000000001
+0000000000000000000000000000000000000002
+<hit enter to proceed>
+
+Accounts to pre-fund
+
+0000000000000000000000000000000000000001
+0000000000000000000000000000000000000002
+<hit enter to proceed>
+
+network id: 9999
+
+Anything fun: [None]
+
+
+#### Setup ethstats
+
+Allows you to see your network
+
+
+#### Modify Geth
+
+```
+mkdir -p ./tmp
+cd ./tmp
+git clone git@github.com:ethereum/go-ethereum.git
+cd go-ethereum
+```
+
+Makes changes
+
+### Compiling custom geth
+
+(Link)[https://github.com/ethereum/go-ethereum/wiki/Cross-compiling-Ethereum]
+
+Requires Docker
+
+To build for Rapsberry PI and Edison (Takes around 5 minutes)
+```
+   go get -u github.com/karalabe/xgo
+   make geth-linux-386 geth-linux-arm-7
+```
+
+Edison : geth-linux-386
+
+Rapsberry-pi 3: geth-linux-arm-7
