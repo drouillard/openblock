@@ -1,0 +1,35 @@
+{
+  "name": "architect",
+  "version": "0.0.1",
+  "description": "Command line tool designed to control a private Ethererum Network built on IOT devices",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ethereum",
+    "private",
+    "network",
+    "edison",
+    "raspberry",
+    "pi",
+    "bootnode",
+    "genesis"
+  ],
+  "dependencies": {
+    "inquirer": "^3.0.6",
+    "pm2": "^2.4.5"
+  },
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "eslint-config-airbnb-base": "11.1.3",
+    "eslint-plugin-import": "2.2.0"
+  },
+  "author": "Douglas Drouillard",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/drouillard/openblock.git"
+  }
+}

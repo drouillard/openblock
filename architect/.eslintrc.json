@@ -1,0 +1,11 @@
+{
+  "env": {
+    "node": true
+  },
+  "extends": "airbnb-base",
+  "rules": {
+    "global-require": 0,
+    "no-console": 1,
+    "import/no-mutable-exports": 0
+  }
+}
