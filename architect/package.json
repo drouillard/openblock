@@ -18,8 +18,12 @@
     "genesis"
   ],
   "dependencies": {
+    "command-line-args": "^4.0.3",
+    "fs-extra": "^2.1.2",
     "inquirer": "^3.0.6",
-    "pm2": "^2.4.5"
+    "pm2": "^2.4.5",
+    "scp2": "^0.5.0",
+    "sudo-prompt": "^7.0.0"
   },
   "devDependencies": {
     "eslint": "3.19.0",

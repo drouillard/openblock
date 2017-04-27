@@ -1,9 +1,5 @@
-const fs = require('fs');
-
 const spawn = require('child_process').spawn;
 const path = require('path');
-
-const config = JSON.parse(fs.readFileSync('config/bootnode.json', 'utf8'));
 
 const cmd = spawn('../bin/darwin/bootnode', ['--verbosity', '9', '--nodekey', path.join(__dirname, 'config', 'nodekey')]);
 
