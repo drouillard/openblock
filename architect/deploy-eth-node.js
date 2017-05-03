@@ -50,13 +50,12 @@ function copySshKey(callback) {
   .exec('mkdir -p ~/.ssh', {
     out: console.log.bind(console),
   })
-  .exec('cat > ~/.ssh/authorized_keys', {
+  .exec('cat >> ~/.ssh/authorized_keys', {
     in: fs.readFileSync(path.join(homeDir, '.ssh', 'id_rsa.pub')),
   })
   .exec('echo "ssh set up."', {
     out: console.log.bind(console),
     exit() {
-      console.log('finished setting up ssh keys');
       callback();
     },
   })
