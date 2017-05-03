@@ -17,6 +17,14 @@ geth --dev --datadir ./chain init ./config/genesis.json
 ./geth --dev --networkid 9090 --port 9999 --bootnodes "enode://34023dbf5fbe45b8a0986bd3a831580f490b09a044ea26fb7e570e772c5a7188ffe00c961aba2a256f9ab594cecc626be90d447737186e8911df3b4ac7a6f6f5@192.168.1.133:30301" --datadir ./chain console
 ```
 
+```
+./geth --datadir ./chain console
+```
+
+geth --datadir ./data --networkid 55661 --port 2002 --unlock 5cc640ae524f70c39081d65bc699b3b61a67bd3f console
+
+
+
 ### Bootnodes
 
 Connecting using a bootnode
@@ -124,3 +132,28 @@ To build for Rapsberry PI and Edison (Takes around 5 minutes)
 Edison : geth-linux-386
 
 Rapsberry-pi 3: geth-linux-arm-7
+
+
+## command addresses
+
+
+0xedefac7152f8cb57f6f4d609598027fcc1f62fcc
+
+> personal.newAccount('1')
+"0xedefac7152f8cb57f6f4d609598027fcc1f62fcc"
+
+Address: {421d0f55b9c8d26b328684c0daf793e6e1f66639}
+
+ enode: "enode://741a38d084ff2306f00c9b726c6c989e9f76c0f7445f27f74641eae75aa557a0ec2a931ff928846e770b9d51fd4a40969c8e0113c572d4f7e436a843590236cb@69.14.184.4:30303",
+
+
+
+ ## Puppeth commands
+
+
+ ```
+ '/geth init /genesis.json' > geth.sh && \{{if .Unlock}}
+	echo 'mkdir -p /root/.ethereum/keystore/ && cp /signer.json /root/.ethereum/keystore/' >> geth.sh && \{{end}}
+
+ 	echo $'/geth --networkid {{.NetworkID}} --cache 512 --port {{.Port}} --maxpeers {{.Peers}} {{.LightFlag}} --ethstats \'{{.Ethstats}}\' {{if .Bootnodes}}--bootnodes {{.Bootnodes}}{{end}} {{if .Etherbase}}--etherbase {{.Etherbase}} --mine{{end}}{{if .Unlock}}--unlock 0 --password /signer.pass --mine{{end}}' >> geth.sh
+  ````

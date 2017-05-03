@@ -9,9 +9,9 @@ function run() {
   // const options = {
   //   name: 'Architect',
   // };
-  console.log('Starting npm install process');
+  console.log('Starting npm install process...');
 
-  execSync('npm install && npm install -g grunt-cli && grunt && npm start', { cwd: destinationFolder });
+  execSync('npm install && npm install -g grunt-cli && grunt && WS_SECRET=d npm start', { cwd: destinationFolder });
 }
 
 if (fs.existsSync(destinationFolder)) {
