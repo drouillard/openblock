@@ -12,14 +12,12 @@ const remoteWorkingDir = 'workspace';
 const optionDefinitions = [
   { name: 'username', alias: 'u', type: String },
   { name: 'host', alias: 'h', type: String },
-  { name: 'platform', type: String, defaultValue: '386' },
 ];
 
 const options = commandLineArgs(optionDefinitions);
 
 const host = options.host;
 const username = options.username;
-const platform = options.platform;
 
 console.log(`Deploying an Ethereum Node at ${username}@${host}`);
 
@@ -30,11 +28,6 @@ if (!host) {
 
 if (!username) {
   console.error('No username provided. Exiting.');
-  process.exit(2);
-}
-
-if (!platform) {
-  console.error('No platform provided. Exiting.');
   process.exit(2);
 }
 
@@ -62,40 +55,21 @@ function copySshKey(callback) {
   .start();
 }
 
-function localGethPath(version) {
-  return path.join(__dirname, 'bin', version, 'geth');
-}
+function copyApp(callback) {
+  const filePath = path.join(__dirname, '..', 'app');
 
-function copyGeth(callback) {
-  const filePath = localGethPath(platform);
-
-  console.log('Copying over geth binary from', filePath);
+  console.log('Copying over app from', filePath);
 
   client.scp(filePath, {
     port: 22,
     host,
     username,
     password: '12345678',
-    path: `${remoteWorkingDir}/geth`,
+    path: `${remoteWorkingDir}/app`,
   }, callback);
 }
 
-function copyConfigFolder(callback) {
-  const filePath = path.join(__dirname, 'config/');
-
-  console.log('Copying over genesis block from', filePath);
-
-  client.scp(filePath, {
-    port: 22,
-    host,
-    username,
-    password: '12345678',
-    path: `${remoteWorkingDir}/config/`,
-  }, callback);
-}
-
-
-function installPm2(callback) {
+function installDeps(callback) {
   console.log('Installing pm2. (May take a few minutes)');
 
   const ssh = new SSH({
@@ -104,7 +78,9 @@ function installPm2(callback) {
     pass: '12345678',
   });
 
-  ssh.exec('npm -g i pm2', {
+  ssh.exec('cd ~/workspace/app; npm install', {
+    out: console.log.bind(console),
+  }).exec('npm -g i pm2', {
     out: console.log.bind(console),
     exit() {
       console.log('finished setting up pm2');
@@ -116,7 +92,6 @@ function installPm2(callback) {
 
 async.series([
   copySshKey,
-  copyGeth,
-  copyConfigFolder,
-  installPm2,
+  copyApp,
+  installDeps,
 ]);

@@ -1,16 +1,13 @@
-
- // eslint-disable-line strict
+ /* eslint-disable */
+'use strict';
 
 const execSync = require('child_process').execSync;
 const commandLineArgs = require('command-line-args');
-const os = require('os');
 const path = require('path');
 
-const homeDir = os.homedir();
-const workspaceDir = path.join(homeDir, 'workspace');
-const configDir = path.join(workspaceDir, 'config');
-const gethDir = workspaceDir;
-const chainDataDir = path.join(gethDir, 'chain');
+const configDir = path.join(__dirname, 'config');
+const gethDir = path.join(__dirname, 'bin', '386');
+const chainDataDir = path.join(__dirname, 'chain');
 
 const optionDefinitions = [
   { name: 'bootnodes', type: String },
@@ -20,20 +17,12 @@ const optionDefinitions = [
 ];
 
 const options = commandLineArgs(optionDefinitions);
-const bootnodes = options.bootnodes || 'none';
-const ethstats = options.ethstats || '';
+const bootnodes = options.bootnodes;
+const ethstats = options.ethstats;
 const profile = options.profile;
 let name = options.name;
 
 const ethStatsPassword = 'd'; // AKA WS_SECRET
-
-if (!name) {
-  console.warn('No name was provided. This name is used to unqeuly identify this node on the Ethstats service');
-  name = 'No name';
-}
-
-// foo:d@192.168.1.133:3000
-const ethStatsArg = `${name}:${ethStatsPassword}@${ethstats}`;
 
 // initialze it
 execSync(`${gethDir}/geth --datadir ${chainDataDir} init ${configDir}/genesis.json`);
@@ -53,14 +42,31 @@ const gethOptions = [
   `--datadir ${chainDataDir}`,
   '--networkid 9999',
   '--verbosity 3',
-  '--unlock 0',
-  `--password ${configDir}/signer.pass`,
-  '--mine',
-  `--ethstats=${ethStatsArg}`,
-  `--bootnodes=${bootnodes}`,
   "--rpc --rpccorsdomain '*'",
   "--rpcaddr '0.0.0.0'",
 ];
+
+if (ethstats) {
+  if (!name) {
+    console.warn('No name was provided. This name is used to unqeuly identify this node on the Ethstats service');
+    name = 'anonymous';
+  }
+
+  // foo:d@192.168.1.133:3000
+  const ethStatsArg = `${name}:${ethStatsPassword}@${ethstats}`;
+  gethOptions.push(`--ethstats=${ethStatsArg}`)
+}
+
+if(bootnodes) {
+  gethOptions.push(`--bootnodes=${bootnodes}`)
+}
+
+// If a known profile was provided lets unlock it
+if(profile) {
+  gethOptions.push('--unlock 0');
+  gethOptions.push(`--password ${configDir}/signer.pass`);
+  gethOptions.push('--mine')
+}
 
 // e.g. if you wanted to run the console
 // geth --datadir ./chain --networkid 9999 --verbosity 3 --unlock 0 --password config/signer.pass --mine --ethstats='foo:d@192.168.1.133:3000' --bootnodes "enode://34023dbf5fbe45b8a0986bd3a831580f490b09a044ea26fb7e570e772c5a7188ffe00c961aba2a256f9ab594cecc626be90d447737186e8911df3b4ac7a6f6f5@192.168.1.133:30301"  console
