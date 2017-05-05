@@ -1,6 +1,9 @@
 const inquirer = require('inquirer');
 const pm2 = require('pm2');
 const deploy = require('./lib/deployment');
+const ip = require('ip');
+
+const password = '12345678';
 
 // Commands
 const ethStats = 'ethStats';
@@ -31,7 +34,7 @@ const ethNodeOptions = [
   },
 ];
 
-const dashboardOptions = [
+const gethOptions = [
   {
     type: 'list',
     name: 'command',
@@ -53,6 +56,8 @@ const dashboardOptions = [
     ],
   },
 ];
+
+const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
 
 function deployBootnode() {
   pm2.connect((err) => {
@@ -104,23 +109,33 @@ function deployEthNode() {
 
 function startEthNode() {
   console.log('Starting geth and dashboard');
+  console.log('Current ip is', ip.address());
 
-  inquirer.prompt(dashboardOptions).then((response) => {
-    const ipAddress = response;
+  inquirer.prompt(startOptions).then((response) => {
+    const host = response.host;
+    const user = response.user;
+    const platform = response.platform;
 
-    console.log('Ip address ', ipAddress);
+    console.log('Starting node with options', host, user, platform);
+
+    const ssh = new SSH({
+      host,
+      user,
+      pass: password,
+    });
+
+    ssh.exec('cd ~/workspace/dashboard; pm2 run node start-geth', {
+      out: console.log.bind(console),
+    }).exec('npm -g i pm2', {
+      out: console.log.bind(console),
+      exit(err) {
+        console.log('finished starting geth and dashboard');
+        ask();
+      },
+    })
+    .start();
 
     // Ask until user quits
-    ask();
-  });
-
-  inquirer.prompt(dashboardOptions).then((response) => {
-    const ipAddress = response;
-
-    console.log('Ip address ', ipAddress);
-
-    // Ask until user quits
-    ask();
   });
 }
 
@@ -157,7 +172,7 @@ const options = [
         },
       },
       {
-        name: 'Start Geth',
+        name: 'Start Geth and Dashboard',
         value: {
           key: commands.startNode,
           func: startEthNode,
@@ -192,7 +207,7 @@ function ask() {
     }
 
     // Ask until user quits
-    if (command.key !== deployNode) {
+    if (command.key !== deployNode || command.key !== startNode) {
       console.log('Asking again');
       ask();
     }
