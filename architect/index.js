@@ -1,17 +1,20 @@
 const inquirer = require('inquirer');
 const pm2 = require('pm2');
+const deploy = require('./lib/deployment');
 
 // Commands
 const ethStats = 'ethStats';
 const exit = 'exit';
 const bootnode = 'bootnode';
-const ethNode = 'ethNode';
+const deployNode = 'deployNode';
+const startNode = 'startNode';
 
 const commands = {
   ethStats,
   bootnode,
   exit,
-  ethNode,
+  deployNode,
+  startNode,
 };
 
 // Configs
@@ -25,6 +28,29 @@ const ethNodeOptions = [
     type: 'input',
     name: 'user',
     message: 'Please enter user',
+  },
+];
+
+const dashboardOptions = [
+  {
+    type: 'list',
+    name: 'command',
+    message: '\n\nSelect platform',
+    choices: [
+      new inquirer.Separator(),
+      {
+        name: 'Intel Edison',
+        value: '386',
+      },
+      {
+        name: 'Raspberry Pi',
+        value: 'arm7',
+      },
+      {
+        name: 'Linux (Generic)',
+        value: 'linux',
+      },
+    ],
   },
 ];
 
@@ -68,6 +94,27 @@ function deployEthNode() {
   console.log('Deploying Edison');
 
   inquirer.prompt(ethNodeOptions).then((response) => {
+    const host = response.host;
+    const user = response.user;
+
+    console.log('User provided', host, user);
+    deploy(host, user, ask);
+  });
+}
+
+function startEthNode() {
+  console.log('Starting geth and dashboard');
+
+  inquirer.prompt(dashboardOptions).then((response) => {
+    const ipAddress = response;
+
+    console.log('Ip address ', ipAddress);
+
+    // Ask until user quits
+    ask();
+  });
+
+  inquirer.prompt(dashboardOptions).then((response) => {
     const ipAddress = response;
 
     console.log('Ip address ', ipAddress);
@@ -104,9 +151,17 @@ const options = [
       {
         name: 'Deploy Ethereum Node',
         value: {
-          key: commands.ethNode,
+          key: commands.deployNode,
           func: deployEthNode,
           help: 'Deploy Edison',
+        },
+      },
+      {
+        name: 'Start Geth',
+        value: {
+          key: commands.startNode,
+          func: startEthNode,
+          help: 'Start Geth and Dashboard',
         },
       },
       'List local processes',
@@ -137,7 +192,7 @@ function ask() {
     }
 
     // Ask until user quits
-    if (command.key !== commands.ethNode) {
+    if (command.key !== deployNode) {
       console.log('Asking again');
       ask();
     }

@@ -42,15 +42,22 @@ Run Architect
 npm start
 ```
 
-
-
-
 # FAQs
-
-- Where can I find instructions on how to run Architect?
-
-While insider Architect enter '99' for instructions
 
 - Why not puppeth?
 
 Puppeth uses docker and does not reliably run on Intel Edisons or Rapsberry Pis.
+
+
+## Developing
+
+When testing on local hardware the easiest way is to copy over your files directly using SSH.
+
+scp or rsync can be used to accomplish this.
+
+In project root run the following command. You will be prompted to enter the password of the user you are logging into the remote machine as in order to copy the files over.
+
+```
+scp -r ./ <username>@<ip>:<destination>
+
+```
