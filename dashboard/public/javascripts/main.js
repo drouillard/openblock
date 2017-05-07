@@ -32827,9 +32827,14 @@ var SolidityCoder = require("web3/lib/solidity/coder.js");
 var account = '0x87b3f6def4d451c41be733b8924da66dea0caed4'; // Dev
 var contractAddress = '0x58b671784f4fa6b02e3dcac9f9dd215b66b5669b';
 
-var url = window.location.href;
+var host = window.location.host;
+var portPosition = host.indexOf(":");
 
-var web3 = new Web3(new Web3.providers.HttpProvider("http://" + url + ":8545"));
+if (portPosition > -1) {
+  host = host.substring(0, portPosition)
+}
+
+var web3 = new Web3(new Web3.providers.HttpProvider("http://" + host + ":8545"));
 
 web3.eth.defaultAccount = account;
 
