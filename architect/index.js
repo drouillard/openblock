@@ -2,6 +2,8 @@ const inquirer = require('inquirer');
 const pm2 = require('pm2');
 const deploy = require('./lib/deployment');
 const ip = require('ip');
+const SSH = require('simple-ssh');
+const utils = require('./lib/utils');
 
 const password = '12345678';
 
@@ -20,6 +22,9 @@ const commands = {
   startNode,
 };
 
+// Commands that require follow-up questions
+const hierarchicalCommands = [deployNode, startNode];
+
 // Configs
 const ethNodeOptions = [
   {
@@ -31,13 +36,14 @@ const ethNodeOptions = [
     type: 'input',
     name: 'user',
     message: 'Please enter user',
+    default: 'root',
   },
 ];
 
 const gethOptions = [
   {
     type: 'list',
-    name: 'command',
+    name: 'platform',
     message: '\n\nSelect platform',
     choices: [
       new inquirer.Separator(),
@@ -55,6 +61,37 @@ const gethOptions = [
       },
     ],
   },
+  {
+    type: 'list',
+    name: 'profile',
+    message: '\n\nSelect profile ',
+    choices: [
+      new inquirer.Separator(),
+      {
+        name: 'Miner #1',
+        value: 'signer-1',
+      },
+      {
+        name: 'Miner #2',
+        value: 'signer-2',
+      },
+      {
+        name: 'None (unable to mine)',
+        value: null,
+      },
+    ],
+  },
+  {
+    type: 'input',
+    name: 'name',
+    message: 'Please enter name to appear on Eth Stats dashboard',
+  },
+  {
+    type: 'confirm',
+    name: 'reset',
+    message: 'Do you want to reset the blockchain data if it exists?',
+    default: false,
+  },
 ];
 
 const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
@@ -62,11 +99,11 @@ const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
 function deployBootnode() {
   pm2.connect((err) => {
     if (err) {
-      console.error(err);
+      console.error('Unable to start bootnode', err);
       process.exit(2);
     }
 
-    console.log('Deploying bootnode');
+    console.log('\n\nDeploying bootnode...');
 
     pm2.start({
       script: './deploy-bootnode.js',         // Script to be run
@@ -96,27 +133,33 @@ function deployEthStats() {
 }
 
 function deployEthNode() {
-  console.log('Deploying Edison');
+  console.log('Deploying Ethereum Node');
 
   inquirer.prompt(ethNodeOptions).then((response) => {
     const host = response.host;
     const user = response.user;
 
-    console.log('User provided', host, user);
+    console.log('Setting up a new machine', host, user);
     deploy(host, user, ask);
   });
 }
 
 function startEthNode() {
+  const localIp = ip.address();
+
   console.log('Starting geth and dashboard');
-  console.log('Current ip is', ip.address());
+  console.log('Current ip is', localIp);
 
   inquirer.prompt(startOptions).then((response) => {
     const host = response.host;
     const user = response.user;
     const platform = response.platform;
+    const profile = response.profile;
+    const name = response.name;
+    const reset = response.reset;
 
-    console.log('Starting node with options', host, user, platform);
+    const bootnodeUrl = utils.bootnodeUrl(localIp);
+    const ethStatsUrl = utils.ethStatsUrl(localIp, name);
 
     const ssh = new SSH({
       host,
@@ -124,11 +167,23 @@ function startEthNode() {
       pass: password,
     });
 
-    ssh.exec('cd ~/workspace/dashboard; pm2 run node start-geth', {
+    const args = [
+      `--ethstats ${ethStatsUrl}`,
+      `--platform ${platform}`,
+      `--profile ${profile}`,
+      `--reset ${reset}`,
+      `--bootnodes ${bootnodeUrl}`,
+    ];
+
+    const argsStr = args.join(' ');
+
+    console.log('Starting geth with options:', argsStr);
+
+    ssh.exec(`cd ~/workspace/dashboard; pm2 delete start-geth; pm2 start start-geth.js -- ${argsStr}`, {
       out: console.log.bind(console),
-    }).exec('npm -g i pm2', {
+    }).exec('cd ~/workspace/dashboard; pm2 delete www; pm2 start ./bin/www', {
       out: console.log.bind(console),
-      exit(err) {
+      exit() {
         console.log('finished starting geth and dashboard');
         ask();
       },
@@ -207,7 +262,8 @@ function ask() {
     }
 
     // Ask until user quits
-    if (command.key !== deployNode || command.key !== startNode) {
+    // Do not ask yet if follow-up questions have to be asked
+    if (hierarchicalCommands.indexOf(command.key) === -1) {
       console.log('Asking again');
       ask();
     }

@@ -1,18 +1,16 @@
-const fs = require('fs-extra');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
+const fs = require('fs-extra');
 const path = require('path');
+const wsSecret = require('../dashboard/config/globals.json').ethStatsPassword;
 
 const destinationFolder = path.join(__dirname, 'tmp', 'eth-stats');
 
 function run() {
-  // const options = {
-  //   name: 'Architect',
-  // };
-  console.log('Starting npm install process...');
-
-  execSync('npm install && npm install -g grunt-cli && grunt && WS_SECRET=d npm start', { cwd: destinationFolder });
+  console.log('Installing dependencies and starting eth stats dashboard...');
+  execSync(`npm install && npm install -g grunt-cli && grunt && WS_SECRET=${wsSecret} npm start`, { cwd: destinationFolder });
 }
+
 
 if (fs.existsSync(destinationFolder)) {
   console.warn('eth stats has already been downloaded');
@@ -34,14 +32,3 @@ exec(`git clone --depth=1 https://github.com/karalabe/eth-netstats ${destination
   console.log(`stderr: ${stderr}`);
   run();
 });
-
-
-// , options, (error, stdout, stderr) => {
-//   if (error) {
-//     console.error(`exec error: ${error}`);
-//     return;
-//   }
-//   console.log(`stdout: ${stdout}`);
-//   console.log(`stderr: ${stderr}`);
-// });
-// }

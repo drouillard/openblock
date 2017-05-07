@@ -1,12 +1,29 @@
-function ethStatsParam(ip) {
-  return `enode://34023dbf5fbe45b8a0986bd3a831580f490b09a044ea26fb7e570e772c5a7188ffe00c961aba2a256f9ab594cecc626be90d447737186e8911df3b4ac7a6f6f5@${ip}:30301`;
+const globals = require('../../dashboard/config/globals.json');
+
+function ethStatsUrl(ip, name) {
+  const ethStatsPassword = globals.ethStatsPassword;
+  const ethStatsPort = globals.ethStatsPort;
+  if (!name) {
+    console.warn('No machine name provided for eth stats url. This name helps identify machine on the Eth Stats Dashboard.');
+  }
+  const machineName = name || 'anonymous';
+
+  return `${machineName}:${ethStatsPassword}@${ip}:${ethStatsPort}`;
 }
 
-function bootnodeParam(ip, name) {
-  return `${name}:d@${ip}:3000`;
+function bootnodeUrl(ip) {
+  const bootnodeAddress = globals.bootnodeAddress;
+
+  // By default the bootnode address references the local machine.
+  // In our case we are deploying accross different machines so we need
+  // to subsitute in our local IP
+  const configuredBootnodeAddress = bootnodeAddress.replace('[::]', ip);
+  // console.info('Configured bootnode address', configuredBootnodeAddress);
+
+  return configuredBootnodeAddress;
 }
 
-module.export = {
-  ethStatsParam,
-  bootnodeParam,
+module.exports = {
+  ethStatsUrl,
+  bootnodeUrl,
 };

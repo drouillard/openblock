@@ -4,11 +4,10 @@ const SSH = require('simple-ssh');
 const fs = require('fs');
 const async = require('async');
 const os = require('os');
+const password = require('../../dashboard/config/globals.json').remoteMachineRootPassword;
 
 const homeDir = os.homedir();
 const dashboardDir = 'workspace/dashboard';
-
-const password = '12345678';
 
 function copySshKey(host, user, callback) {
   const ssh = new SSH({

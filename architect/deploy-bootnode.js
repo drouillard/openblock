@@ -1,7 +1,10 @@
 const spawn = require('child_process').spawn;
 const path = require('path');
 
-const cmd = spawn('bin/darwin/bootnode', ['--verbosity', '9', '--nodekey', path.join(__dirname, 'config', 'nodekey')]);
+const bootnodeBinPath = path.join(__dirname, '..', 'dashboard', 'bin', 'geth', 'darwin', 'bootnode');
+const nodekeyPath = path.join(__dirname, '..', 'dashboard', 'config', 'nodekey');
+
+const cmd = spawn(bootnodeBinPath, ['--verbosity', '9', '--nodekey', nodekeyPath]);
 
 cmd.stdout.on('data', (data) => {
   console.log(`stdout: ${data}`);
