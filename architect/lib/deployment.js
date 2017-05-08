@@ -60,6 +60,9 @@ function installDeps(host, user, callback) {
   }).exec('npm -g i pm2', {
     out: console.log.bind(console),
     exit(err) {
+      if (err) {
+        console.error('Unable to set up pm2', err);
+      }
       console.log('finished setting up pm2');
       callback();
     },

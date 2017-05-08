@@ -1,6 +1,8 @@
 const inquirer = require('inquirer');
 const pm2 = require('pm2');
 const deploy = require('./lib/deployment');
+const devUtils = require('./lib/devUtils');
+
 const ip = require('ip');
 const SSH = require('simple-ssh');
 const utils = require('./lib/utils');
@@ -13,6 +15,7 @@ const exit = 'exit';
 const bootnode = 'bootnode';
 const deployNode = 'deployNode';
 const startNode = 'startNode';
+const dev = 'dev';
 
 const commands = {
   ethStats,
@@ -20,10 +23,11 @@ const commands = {
   exit,
   deployNode,
   startNode,
+  dev,
 };
 
 // Commands that require follow-up questions
-const hierarchicalCommands = [deployNode, startNode];
+const hierarchicalCommands = [deployNode, startNode, dev];
 
 // Configs
 const ethNodeOptions = [
@@ -96,6 +100,35 @@ const gethOptions = [
 
 const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
 
+const genesis = 'gensis';
+const geth = 'geth';
+const dashboard = 'dashboard';
+
+const devOptions = [
+  {
+    type: 'list',
+    name: 'command',
+    message: '\n\nWhat would you like to deploy?',
+    choices: [
+      new inquirer.Separator(),
+      {
+        name: 'Update genesis config',
+        value: genesis,
+      },
+      {
+        name: 'Update start geth script',
+        value: geth,
+      },
+      {
+        name: 'Update dashboard javaScript',
+        value: dashboard,
+      },
+    ],
+  },
+];
+
+const developmentOptions = devOptions.slice(0).concat(ethNodeOptions);
+
 function deployBootnode() {
   pm2.connect((err) => {
     if (err) {
@@ -147,7 +180,6 @@ function deployEthNode() {
 function startEthNode() {
   const localIp = ip.address();
 
-  console.log('Starting geth and dashboard');
   console.log('Current ip is', localIp);
 
   inquirer.prompt(startOptions).then((response) => {
@@ -194,6 +226,21 @@ function startEthNode() {
   });
 }
 
+function deployDevOptions() {
+  inquirer.prompt(developmentOptions).then((response) => {
+    const command = response.command;
+    const host = response.host;
+    const user = response.user;
+
+    if (command === genesis) {
+      devUtils.updateGenesisConfig(host, user, ask);
+    } else if (command === geth) {
+      devUtils.updateStartGethScript(host, user, ask);
+    } else if (command === dashboard) {
+      devUtils.updateDashboardJs(host, user, ask);
+    }
+  });
+}
 
 const options = [
   {
@@ -231,10 +278,17 @@ const options = [
         value: {
           key: commands.startNode,
           func: startEthNode,
-          help: 'Start Geth and Dashboard',
+          help: 'Start geth and dashboard',
         },
       },
-      'List local processes',
+      {
+        name: 'Dev Options',
+        value: {
+          key: commands.dev,
+          func: deployDevOptions,
+          help: 'Update remote machines with new code',
+        },
+      },
       {
         name: 'Exit',
         value: {

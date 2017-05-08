@@ -1,0 +1,44 @@
+const path = require('path');
+const client = require('scp2');
+
+const password = require('../../dashboard/config/globals.json').remoteMachineRootPassword;
+
+function execScp(host, username, source, dest, callback) {
+  client.scp(source, {
+    port: 22,
+    host,
+    username,
+    password,
+    path: dest,
+  }, callback);
+}
+// update gensis block
+
+function updateGenesisConfig(host, username, callback) {
+  const localPath = path.join(__dirname, '../../dashboard', 'config', 'genesis.json');
+  const remotePath = 'workspace/dashboard/config/genesis.json';
+
+  execScp(host, username, localPath, remotePath, callback);
+}
+
+// update start geth script
+function updateStartGethScript(host, username, callback) {
+  const localPath = path.join(__dirname, '../../dashboard', 'start-geth.js');
+  const remotePath = 'workspace/dashboard/start-geth.js';
+
+  execScp(host, username, localPath, remotePath, callback);
+}
+
+// update dashboard js
+function updateDashboardJs(host, username, callback) {
+  const localPath = path.join(__dirname, '../../dashboard', 'public', 'javascripts', 'main.js');
+  const remotePath = 'workspace/dashboard/public/javascripts/main.js';
+
+  execScp(host, username, localPath, remotePath, callback);
+}
+
+module.exports = {
+  updateGenesisConfig,
+  updateStartGethScript,
+  updateDashboardJs,
+};
