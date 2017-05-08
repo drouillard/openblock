@@ -72,8 +72,8 @@ const gethOptions = [
     choices: [
       new inquirer.Separator(),
       {
-        name: 'Miner #1',
-        value: 'signer-1',
+        name: 'Bank',
+        value: 'bank',
       },
       {
         name: 'Miner #2',
@@ -102,7 +102,8 @@ const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
 
 const genesis = 'gensis';
 const geth = 'geth';
-const dashboard = 'dashboard';
+const allDashboard = 'allDashboard';
+const dashboardMain = 'dashboardMain';
 
 const devOptions = [
   {
@@ -120,8 +121,12 @@ const devOptions = [
         value: geth,
       },
       {
-        name: 'Update dashboard javaScript',
-        value: dashboard,
+        name: 'Update all of dashboard',
+        value: allDashboard,
+      },
+      {
+        name: 'Update dashboard main javaScript (single file)',
+        value: dashboardMain,
       },
     ],
   },
@@ -236,8 +241,10 @@ function deployDevOptions() {
       devUtils.updateGenesisConfig(host, user, ask);
     } else if (command === geth) {
       devUtils.updateStartGethScript(host, user, ask);
-    } else if (command === dashboard) {
-      devUtils.updateDashboardJs(host, user, ask);
+    } else if (command === allDashboard) {
+      devUtils.updateDashboard(host, user, ask);
+    } else if (command === dashboardMain) {
+      devUtils.updateDashboardMainJs(host, user, ask);
     }
   });
 }

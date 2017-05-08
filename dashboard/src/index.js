@@ -1,13 +1,12 @@
 import $ from 'jquery';
+import Web3Enabled from './web3-enabled';
+import LocalNode from './local-node';
 
 require('jquery-ui-bundle');
 
 // import SolidityCoder from 'web3/lib/solidity/coder';
 
-import Web3Provider from './web3-provider';
-import LocalNode from './local-node';
-
-const web3 = Web3Provider.getInstance();
+const web3 = Web3Enabled.getInstance();
 
 // export on dev console
 window.web3 = web3;
@@ -20,7 +19,7 @@ filter.watch((error, result) => {
   if (error) return;
 
   const block = web3.eth.getBlock(result, true);
-  console.log(`block #${block.number}`);
+  console.log(`block #${block.number}`, block);
 
   console.dir(block.transactions);
 
@@ -68,5 +67,14 @@ $(() => {
     // Block number
     const number = web3.eth.blockNumber;
     if ($('#label2').text() != number) { $('#label2').text(number).effect('highlight'); }
+
+    // Solar coin balance
+    localNode.getSolarCoinBalance().then((solarCoinBalance) => {
+      console.info('Retreived from rpc api. Solar coin balance', solarCoinBalance);
+
+      if ($('#label3').text() != solarCoinBalance) {
+        $('#label3').text(solarCoinBalance).effect('highlight');
+      }
+    });
   }, 3000);
 });

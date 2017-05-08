@@ -30,7 +30,14 @@ function updateStartGethScript(host, username, callback) {
 }
 
 // update dashboard js
-function updateDashboardJs(host, username, callback) {
+function updateDashboard(host, username, callback) {
+  const localPath = path.join(__dirname, '../../dashboard');
+  const remotePath = 'workspace/dashboard';
+
+  execScp(host, username, localPath, remotePath, callback);
+}
+
+function updateDashboardMainJs(host, username, callback) {
   const localPath = path.join(__dirname, '../../dashboard', 'public', 'javascripts', 'main.js');
   const remotePath = 'workspace/dashboard/public/javascripts/main.js';
 
@@ -40,5 +47,6 @@ function updateDashboardJs(host, username, callback) {
 module.exports = {
   updateGenesisConfig,
   updateStartGethScript,
-  updateDashboardJs,
+  updateDashboard,
+  updateDashboardMainJs,
 };

@@ -17,12 +17,16 @@ function getHost() {
 /**
  * Base class that provides access to web3 instance connected to local host
  */
-export default class Web3Provider {
+let instance;
+
+export default class Web3Enabled {
   static getInstance() {
-    return new Web3(new Web3.providers.HttpProvider(`http://${getHost()}:8545`));
+    instance = instance || new Web3(new Web3.providers.HttpProvider(`http://${getHost()}:8545`));
+    return instance;
   }
 
+
   constructor() {
-    this.web3 = Web3Provider.getInstance();
+    this.web3 = Web3Enabled.getInstance();
   }
 }
