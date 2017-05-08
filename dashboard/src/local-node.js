@@ -9,12 +9,7 @@ const SolarCoin = contract(json);
 export default class LocalNode extends Web3Enabled {
   constructor() {
     super();
-
-        // Step 3: Provision the contract with a web3 provider
-    console.log('setting provider', this.web3.currentProvider);
-
     SolarCoin.setProvider(this.web3.currentProvider);
-
     SolarCoin.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
 

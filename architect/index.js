@@ -102,7 +102,7 @@ const startOptions = ethNodeOptions.slice(0).concat(gethOptions);
 
 const genesis = 'gensis';
 const geth = 'geth';
-const allDashboard = 'allDashboard';
+const dashboardIndex = 'dashboardIndex';
 const dashboardMain = 'dashboardMain';
 
 const devOptions = [
@@ -121,8 +121,8 @@ const devOptions = [
         value: geth,
       },
       {
-        name: 'Update all of dashboard',
-        value: allDashboard,
+        name: 'Update dashboard index.ejs',
+        value: dashboardIndex,
       },
       {
         name: 'Update dashboard main javaScript (single file)',
@@ -241,8 +241,8 @@ function deployDevOptions() {
       devUtils.updateGenesisConfig(host, user, ask);
     } else if (command === geth) {
       devUtils.updateStartGethScript(host, user, ask);
-    } else if (command === allDashboard) {
-      devUtils.updateDashboard(host, user, ask);
+    } else if (command === dashboardIndex) {
+      devUtils.updateDashboardIndex(host, user, ask);
     } else if (command === dashboardMain) {
       devUtils.updateDashboardMainJs(host, user, ask);
     }

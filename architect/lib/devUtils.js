@@ -29,7 +29,7 @@ function updateStartGethScript(host, username, callback) {
   execScp(host, username, localPath, remotePath, callback);
 }
 
-// update dashboard js
+// update dashboard js. Extremely heavy as node_modules involved
 function updateDashboard(host, username, callback) {
   const localPath = path.join(__dirname, '../../dashboard');
   const remotePath = 'workspace/dashboard';
@@ -44,9 +44,17 @@ function updateDashboardMainJs(host, username, callback) {
   execScp(host, username, localPath, remotePath, callback);
 }
 
+function updateDashboardIndex(host, username, callback) {
+  const localPath = path.join(__dirname, '../../dashboard', 'views', 'index.ejs');
+  const remotePath = 'workspace/dashboard/views/index.ejs';
+
+  execScp(host, username, localPath, remotePath, callback);
+}
+
 module.exports = {
   updateGenesisConfig,
   updateStartGethScript,
   updateDashboard,
   updateDashboardMainJs,
+  updateDashboardIndex,
 };

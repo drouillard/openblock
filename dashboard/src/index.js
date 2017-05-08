@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import Web3Enabled from './web3-enabled';
 import LocalNode from './local-node';
+import SolarCoinService from './solar-coin-service';
 
 require('jquery-ui-bundle');
 
@@ -59,6 +60,21 @@ filter.watch((error, result) => {
 $(() => {
   console.log('Document ready');
   const localNode = new LocalNode();
+  const solarCoinService = new SolarCoinService();
+
+  $('#send_coins_form').submit((e) => {
+    e.preventDefault();
+
+    const amountText = $('#send_coins_amount').val();
+    const amount = parseInt(amountText, 10);
+    const address = $('#send_coins_address').val();
+
+
+    solarCoinService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
+      console.log('the result of sending coins', res);
+      $('#message').addClass('alert alert-info').text(`Coins sent to ${address}`);
+    });
+  });
 
   setInterval(() => {
     // Account balance in Ether
@@ -69,7 +85,7 @@ $(() => {
     if ($('#label2').text() != number) { $('#label2').text(number).effect('highlight'); }
 
     // Solar coin balance
-    localNode.getSolarCoinBalance().then((solarCoinBalance) => {
+    solarCoinService.getBalance(localNode.getPrimaryAccount()).then((solarCoinBalance) => {
       console.info('Retreived from rpc api. Solar coin balance', solarCoinBalance);
 
       if ($('#label3').text() != solarCoinBalance) {
