@@ -244,7 +244,7 @@ function startEthNode() {
 
     ssh.exec(`cd ~/workspace/dashboard; pm2 delete start-geth; pm2 start start-geth.js -- ${argsStr}`, {
       out: console.log.bind(console),
-    }).exec(`cd ~/workspace/dashboard; pm2 delete mining-led; pm2 start ./bin/mining-led.js -- ${argsStr}`, {
+    }).exec('cd ~/workspace/dashboard; pm2 delete led-notifications; pm2 start --name led-notifications npm -- run sealing-led', {
       out: console.log.bind(console),
     })
     .exec('cd ~/workspace/dashboard; pm2 delete www; pm2 start ./bin/www', {
@@ -296,7 +296,7 @@ const options = [
         },
       },
       {
-        name: 'Deploy Bootnode',
+        name: 'Deploy Bootnode (OS X only. Others start manually)',
         value: {
           key: commands.bootnode,
           func: deployBootnode,

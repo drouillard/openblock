@@ -4,7 +4,14 @@ import Web3 from 'web3';
  * Get local host without port number
  */
 function getHost() {
-  let host = window.location.host;
+  let host;
+
+  if (typeof window !== 'undefined') {
+    host = window.location.host;
+  } else {
+    host = 'localhost';
+  }
+
   const portPosition = host.indexOf(':');
 
   if (portPosition > -1) {

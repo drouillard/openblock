@@ -29,7 +29,7 @@ filter.watch((error, result) => {
 $(() => {
   console.log('Document ready');
   const localNode = new LocalNode();
-  const SolarUnitService = new SolarUnitService();
+  const solarUnitService = new SolarUnitService();
 
   $('#send_coins_form').submit((e) => {
     e.preventDefault();
@@ -39,15 +39,15 @@ $(() => {
     const address = $('#send_coins_address').val();
 
 
-    SolarUnitService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
-      console.log('the result of sending coins', res);
+    solarUnitService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
+      console.log('the result of sending units', res);
       $('#message').addClass('alert alert-info').text(`Coins sent to ${address}`);
     });
   });
 
   setInterval(() => {
     // Account balance in Ether
-    $('#label1').text(localNode.getBalance());
+    $('#label1').text(localNode.getFormattedBalance());
 
     // Block number
     const number = web3.eth.blockNumber;
@@ -55,7 +55,7 @@ $(() => {
 
     // Solar unit balance
     SolarUnitService.getBalance(localNode.getPrimaryAccount()).then((solarUnitBalance) => {
-      console.info('Retreived from rpc api. Solar coin balance', solarUnitBalance);
+      console.info('Retreived from rpc api. Solar unit balance', solarUnitBalance);
 
       if ($('#label3').text() != solarUnitBalance) {
         $('#label3').text(solarUnitBalance).effect('highlight');

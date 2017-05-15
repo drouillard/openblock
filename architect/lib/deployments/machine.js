@@ -55,7 +55,7 @@ function installDeps(host, user, callback) {
     pass: password,
   });
 
-  ssh.exec(`cd ${dashboardDir}; npm install; npm run build-sealing-led; npm run sealing-led`, {
+  ssh.exec(`cd ${dashboardDir}; npm install; npm run build-sealing-led`, {
     out: console.log.bind(console),
   }).exec('npm -g i pm2', {
     out: console.log.bind(console),
