@@ -50,8 +50,8 @@ const gethOptions = [
   `--networkid ${networkId}`,
   '--verbosity 3',
   "--rpc --rpccorsdomain '*'",
-  '--rpcapi "admin,debug,eth,miner,net,personal,shh,txpool,web3"',
-  "--rpcaddr '0.0.0.0'",
+  '--rpcapi "admin,debug,eth,miner,net,personal,shh,txpool,web3,clique"',
+  '--rpcaddr "0.0.0.0"',
 ];
 
 if (ethstats) {
@@ -73,12 +73,12 @@ if (profile) {
   gethOptions.push('--mine');
 }
 
-// If you wanted to run the console
+// If you wanted to run the console manually
 // geth --datadir ./chain --networkid 9999 --verbosity 3 --unlock 0 --password config/signer.pass --mine --ethstats='foo:d@192.168.1.133:3000' --bootnodes "enode://34023dbf5fbe45b8a0986bd3a831580f490b09a044ea26fb7e570e772c5a7188ffe00c961aba2a256f9ab594cecc626be90d447737186e8911df3b4ac7a6f6f5@192.168.1.133:30301"  console
 
-// Attach to this instance from dashboard home
+// Attach to this instance from dashboard home (e.g. is edison -- use appropriate binary)
 // ./bin/geth/386/geth attach ipc:chain/geth.ipc
 
 const gethCommand = `${gethDir}/geth ${gethOptions.join(' ')}`;
-console.log('Starting geth', gethCommand);
+console.log('Starting geth with command:', gethCommand);
 execSync(gethCommand);

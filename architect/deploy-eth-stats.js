@@ -6,9 +6,14 @@ const wsSecret = require('../dashboard/config/globals.json').ethStatsPassword;
 
 const destinationFolder = path.join(__dirname, 'tmp', 'eth-stats');
 
+function installDependencies() {
+  console.log('Installing dependencies');
+  execSync('npm install && npm install -g grunt-cli && grunt', { cwd: destinationFolder });
+}
+
 function run() {
-  console.log('Installing dependencies and starting eth stats dashboard...');
-  execSync(`npm install && npm install -g grunt-cli && grunt && WS_SECRET=${wsSecret} npm start`, { cwd: destinationFolder });
+  console.log('Starting eth stats dashboard...');
+  execSync(`WS_SECRET=${wsSecret} npm start`, { cwd: destinationFolder });
 }
 
 
@@ -18,6 +23,8 @@ if (fs.existsSync(destinationFolder)) {
   process.exit();
 } else {
   fs.ensureDirSync(destinationFolder);
+  installDependencies();
+  run();
 }
 
 // download eth stats

@@ -4,7 +4,7 @@ const SSH = require('simple-ssh');
 const fs = require('fs');
 const async = require('async');
 const os = require('os');
-const password = require('../../dashboard/config/globals.json').remoteMachineRootPassword;
+const password = require('../../../dashboard/config/globals.json').remoteMachineRootPassword;
 
 const homeDir = os.homedir();
 const dashboardDir = 'workspace/dashboard';
@@ -33,7 +33,7 @@ function copySshKey(host, user, callback) {
 }
 
 function copyApp(host, username, callback) {
-  const filePath = path.join(__dirname, '..', '..', 'dashboard');
+  const filePath = path.join(__dirname, '../../../', 'dashboard');
 
   console.log('Copying over app from', filePath);
 
@@ -55,7 +55,7 @@ function installDeps(host, user, callback) {
     pass: password,
   });
 
-  ssh.exec(`cd ${dashboardDir}; npm install`, {
+  ssh.exec(`cd ${dashboardDir}; npm install; npm run build-mining-led;`, {
     out: console.log.bind(console),
   }).exec('npm -g i pm2', {
     out: console.log.bind(console),

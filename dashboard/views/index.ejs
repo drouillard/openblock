@@ -2,16 +2,15 @@
 <html>
 <head>
   <title><%= title %></title>
-  <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='/stylesheets/bootstrap.css' />
   <link rel='stylesheet' href='/stylesheets/style.css' />
-
 </head>
 <body>
   <div class="container-fluid">
 
     <div class="row">
       <div>
-        <h1 class="page-header">Solar Coin Dashboard</h1>
+        <h1 class="page-header">Solar Unit Dashboard</h1>
         <div class="panel panel-default">
           <div class="panel-body">
             <div class="row placeholders">
@@ -24,7 +23,7 @@
                 <span class="text-muted" id="label2"></span>
               </div>
               <div class="col-xs-6 col-sm-3 placeholder">
-                <h4>Solar Coins</h4>
+                <h4>Solar Units (kwh)</h4>
                 <span class="text-muted" id="label3"></span>
               </div>
               <!--div class="col-xs-6 col-sm-3 placeholder">
@@ -63,7 +62,7 @@
         <h2 class="sub-header">Operations</h2>
         <form class="form-inline" role="form" id="send_coins_form">
           <div class="form-group">
-            <label for="send">Send Coins:</label>
+            <label for="send">Send Units:</label>
             <input name='send_coins_address' type="text" class="form-control" id="send_coins_address" placeholder="Address">
             <input name='send_coins_amount' type="number" class="form-control" id="send_coins_amount" placeholder="Amount" value='5'>
           </div>
@@ -93,12 +92,9 @@
     </div>
   </div -->
 
-  <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="/javascripts/web3.min.js"></script>
-
-  <script src="/javascripts/abi.js"></script>
+  <!--script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script -->
+  <script src="/javascripts/bootstrap.min.js"></script>
   <script src="/javascripts/main.js"></script>
 </body>
 </html>

@@ -1,17 +1,17 @@
-import Web3Enabled from './web3-enabled';
+import Web3Configurer from './web3-configurer';
 
 const contract = require('truffle-contract');
 
-const json = require('../solarcoin/build/contracts/MetaCoin.json');
+const json = require('../solarunit/build/contracts/SolarUnit.json');
 
-const SolarCoinContract = contract(json);
+const SolarUnitContract = contract(json);
 
-export default class SolarCoinService extends Web3Enabled {
+export default class SolarUnitService {
 
   constructor() {
-    super();
-    SolarCoinContract.setProvider(this.web3.currentProvider);
-    SolarCoinContract.deployed().then((instance) => { this.solarCoinContract = instance; });
+    this.web3 = Web3Configurer.getInstance();
+    SolarUnitContract.setProvider(this.web3.currentProvider);
+    SolarUnitContract.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
 
   getBalance(account) {

@@ -18,6 +18,7 @@ function bootnodeUrl(ip) {
   // In our case we are deploying accross different machines so we need
   // to subsitute in our local IP
   const configuredBootnodeAddress = bootnodeAddress.replace('[::]', ip);
+
   // console.info('Configured bootnode address', configuredBootnodeAddress);
 
   return configuredBootnodeAddress;

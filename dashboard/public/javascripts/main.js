@@ -26151,7 +26151,7 @@ module.exports = Jsonrpc;
 /***/ (function(module, exports) {
 
 module.exports = {
-	"contract_name": "MetaCoin",
+	"contract_name": "SolarUnit",
 	"abi": [
 		{
 			"constant": false,
@@ -55322,13 +55322,13 @@ const contract = __webpack_require__(33);
 
 const json = __webpack_require__(37);
 
-const SolarCoin = contract(json);
+const SolarUnit = contract(json);
 
 class LocalNode extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* default */] {
   constructor() {
     super();
-    SolarCoin.setProvider(this.web3.currentProvider);
-    SolarCoin.deployed().then((instance) => { this.solarCoinContract = instance; });
+    SolarUnit.setProvider(this.web3.currentProvider);
+    SolarUnit.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
 
   getPrimaryAccount() {
@@ -55355,7 +55355,7 @@ class LocalNode extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* defau
     return balance ? Number(balance).toLocaleString() : 0;
   }
 
-  getSolarCoinBalance() {
+  getSolarUnitBalance() {
     const account = this.getPrimaryAccount();
     if (!this.solarCoinContract) {
       console.warn('No solar coin contract found');
@@ -55383,14 +55383,14 @@ const contract = __webpack_require__(33);
 
 const json = __webpack_require__(37);
 
-const SolarCoinContract = contract(json);
+const SolarUnitContract = contract(json);
 
-class SolarCoinService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* default */] {
+class SolarUnitService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* default */] {
 
   constructor() {
     super();
-    SolarCoinContract.setProvider(this.web3.currentProvider);
-    SolarCoinContract.deployed().then((instance) => { this.solarCoinContract = instance; });
+    SolarUnitContract.setProvider(this.web3.currentProvider);
+    SolarUnitContract.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
 
   getBalance(account) {
@@ -55424,7 +55424,7 @@ class SolarCoinService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /
     return this.solarCoinContract.sendCoin(receiver, amount, { from });
   }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = SolarCoinService;
+/* harmony export (immutable) */ __webpack_exports__["a"] = SolarUnitService;
 
 
 

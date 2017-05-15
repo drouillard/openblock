@@ -1,13 +1,13 @@
 import $ from 'jquery';
-import Web3Enabled from './web3-enabled';
+import Web3Configurer from './web3-configurer';
 import LocalNode from './local-node';
-import SolarCoinService from './solar-coin-service';
+import SolarUnitService from './solar-unit-service';
 
 require('jquery-ui-bundle');
 
 // import SolidityCoder from 'web3/lib/solidity/coder';
 
-const web3 = Web3Enabled.getInstance();
+const web3 = Web3Configurer.getInstance();
 
 // export on dev console
 window.web3 = web3;
@@ -22,45 +22,14 @@ filter.watch((error, result) => {
   const block = web3.eth.getBlock(result, true);
   console.log(`block #${block.number}`, block);
 
-  console.dir(block.transactions);
-
-  // for (let index = 0; index < block.transactions.length; index++) {
-  //   const t = block.transactions[index];
-  //
-  //   // Decode from
-  //   const from = t.from == account ? 'me' : t.from;
-  //
-  //   // Decode function
-  //   const func = findFunctionByHash(functionHashes, t.input);
-  //
-  //   if (func == 'sellEnergy') {
-  //     // This is the sellEnergy() method
-  //     var inputData = SolidityCoder.decodeParams(['uint256'], t.input.substring(10));
-  //     console.dir(inputData);
-  //     $('#transactions').append(`<tr><td>${t.blockNumber
-  //       }</td><td>${from
-  //       }</td><td>` + 'ApolloTrade' +
-  //       `</td><td>sellEnergy(${inputData[0].toString()})</td></tr>`);
-  //   } else if (func == 'buyEnergy') {
-  //     // This is the buyEnergy() method
-  //     var inputData = SolidityCoder.decodeParams(['uint256'], t.input.substring(10));
-  //     console.dir(inputData);
-  //     $('#transactions').append(`<tr><td>${t.blockNumber
-  //       }</td><td>${from
-  //       }</td><td>` + 'ApolloTrade' +
-  //       `</td><td>buyEnergy(${inputData[0].toString()})</td></tr>`);
-  //   } else {
-  //     // Default log
-  //     $('#transactions').append(`<tr><td>${t.blockNumber}</td><td>${from}</td><td>${t.to}</td><td>${t.input}</td></tr>`);
-  //   }
-  // }
+  console.dir('transaction in block', block.transactions);
 });
 
 // Update labels
 $(() => {
   console.log('Document ready');
   const localNode = new LocalNode();
-  const solarCoinService = new SolarCoinService();
+  const SolarUnitService = new SolarUnitService();
 
   $('#send_coins_form').submit((e) => {
     e.preventDefault();
@@ -70,7 +39,7 @@ $(() => {
     const address = $('#send_coins_address').val();
 
 
-    solarCoinService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
+    SolarUnitService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
       console.log('the result of sending coins', res);
       $('#message').addClass('alert alert-info').text(`Coins sent to ${address}`);
     });
@@ -84,12 +53,12 @@ $(() => {
     const number = web3.eth.blockNumber;
     if ($('#label2').text() != number) { $('#label2').text(number).effect('highlight'); }
 
-    // Solar coin balance
-    solarCoinService.getBalance(localNode.getPrimaryAccount()).then((solarCoinBalance) => {
-      console.info('Retreived from rpc api. Solar coin balance', solarCoinBalance);
+    // Solar unit balance
+    SolarUnitService.getBalance(localNode.getPrimaryAccount()).then((solarUnitBalance) => {
+      console.info('Retreived from rpc api. Solar coin balance', solarUnitBalance);
 
-      if ($('#label3').text() != solarCoinBalance) {
-        $('#label3').text(solarCoinBalance).effect('highlight');
+      if ($('#label3').text() != solarUnitBalance) {
+        $('#label3').text(solarUnitBalance).effect('highlight');
       }
     });
   }, 3000);

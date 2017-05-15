@@ -1,16 +1,16 @@
-import Web3Enabled from './web3-enabled';
+import Web3Configurer from './web3-configurer';
 
 const contract = require('truffle-contract');
 
-const json = require('../solarcoin/build/contracts/MetaCoin.json');
+const json = require('../solarunit/build/contracts/SolarUnit.json');
 
-const SolarCoin = contract(json);
+const SolarUnit = contract(json);
 
-export default class LocalNode extends Web3Enabled {
+export default class LocalNode {
   constructor() {
-    super();
-    SolarCoin.setProvider(this.web3.currentProvider);
-    SolarCoin.deployed().then((instance) => { this.solarCoinContract = instance; });
+    this.web3 = Web3Configurer.getInstance();
+    SolarUnit.setProvider(this.web3.currentProvider);
+    SolarUnit.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
 
   getPrimaryAccount() {
@@ -37,7 +37,7 @@ export default class LocalNode extends Web3Enabled {
     return balance ? Number(balance).toLocaleString() : 0;
   }
 
-  getSolarCoinBalance() {
+  getSolarUnitBalance() {
     const account = this.getPrimaryAccount();
     if (!this.solarCoinContract) {
       console.warn('No solar coin contract found');

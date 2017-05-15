@@ -1,19 +1,22 @@
 const inquirer = require('inquirer');
 const pm2 = require('pm2');
-const deploy = require('./lib/deployment');
+const deployMachine = require('./lib/deployments/machine');
+const deployContract = require('./lib/deployments/contract');
+
 const devUtils = require('./lib/devUtils');
 
 const ip = require('ip');
 const SSH = require('simple-ssh');
 const utils = require('./lib/utils');
-
-const password = '12345678';
+const password = require('../dashboard/config/globals').remoteMachineRootPassword;
 
 // Commands
 const ethStats = 'ethStats';
 const exit = 'exit';
 const bootnode = 'bootnode';
 const deployNode = 'deployNode';
+const contractDeployment = 'contractDeployment';
+
 const startNode = 'startNode';
 const dev = 'dev';
 
@@ -23,11 +26,12 @@ const commands = {
   exit,
   deployNode,
   startNode,
+  contractDeployment,
   dev,
 };
 
 // Commands that require follow-up questions
-const hierarchicalCommands = [deployNode, startNode, dev];
+const hierarchicalCommands = [deployNode, startNode, contractDeployment, dev];
 
 // Configs
 const ethNodeOptions = [
@@ -72,12 +76,12 @@ const gethOptions = [
     choices: [
       new inquirer.Separator(),
       {
-        name: 'Bank',
-        value: 'bank',
+        name: 'Grid (Central account)',
+        value: 'grid',
       },
       {
-        name: 'Miner #2',
-        value: 'signer-2',
+        name: 'Sealer #1',
+        value: 'sealer-1',
       },
       {
         name: 'None (unable to mine)',
@@ -178,7 +182,20 @@ function deployEthNode() {
     const user = response.user;
 
     console.log('Setting up a new machine', host, user);
-    deploy(host, user, ask);
+    deployMachine(host, user, ask);
+  });
+}
+
+function deploySmartContract() {
+  console.log('Deploying smart contract');
+
+  inquirer.prompt(smartContractOptions).then((response) => {
+    const host = response.host;
+    const user = response.user;
+    const contractId = response.contractId;
+
+    console.log('Setting up a new machine', host, user);
+    deployContract(host, user, contractId, ask);
   });
 }
 
@@ -218,7 +235,10 @@ function startEthNode() {
 
     ssh.exec(`cd ~/workspace/dashboard; pm2 delete start-geth; pm2 start start-geth.js -- ${argsStr}`, {
       out: console.log.bind(console),
-    }).exec('cd ~/workspace/dashboard; pm2 delete www; pm2 start ./bin/www', {
+    }).exec(`cd ~/workspace/dashboard; pm2 delete mining-led; pm2 start ./bin/mining-led.js -- ${argsStr}`, {
+      out: console.log.bind(console),
+    })
+    .exec('cd ~/workspace/dashboard; pm2 delete www; pm2 start ./bin/www', {
       out: console.log.bind(console),
       exit() {
         console.log('finished starting geth and dashboard');
@@ -286,6 +306,14 @@ const options = [
           key: commands.startNode,
           func: startEthNode,
           help: 'Start geth and dashboard',
+        },
+      },
+      {
+        name: 'Deploy Smart Contract',
+        value: {
+          key: commands.contractDeployment,
+          func: deploySmartContract,
+          help: 'Deploy Smart Contract',
         },
       },
       {
