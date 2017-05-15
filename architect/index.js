@@ -80,11 +80,19 @@ const gethOptions = [
         value: 'grid',
       },
       {
-        name: 'Sealer #1',
+        name: 'Sealer #1 (pre-allocated)',
         value: 'sealer-1',
       },
       {
-        name: 'None (unable to mine)',
+        name: 'Sealer #2',
+        value: 'sealer-2',
+      },
+      {
+        name: 'Sealer #3',
+        value: 'sealer-3',
+      },
+      {
+        name: 'None (unable to seal)',
         value: null,
       },
     ],
@@ -108,6 +116,7 @@ const genesis = 'gensis';
 const geth = 'geth';
 const dashboardIndex = 'dashboardIndex';
 const dashboardMain = 'dashboardMain';
+const sealingLed = 'sealingLed';
 
 const devOptions = [
   {
@@ -265,6 +274,8 @@ function deployDevOptions() {
       devUtils.updateDashboardIndex(host, user, ask);
     } else if (command === dashboardMain) {
       devUtils.updateDashboardMainJs(host, user, ask);
+    } else if (command === sealingLed) {
+      devUtils.updateSealingLedScript(host, user, ask);
     }
   });
 }

@@ -12,49 +12,50 @@ function execScp(host, username, source, dest, callback) {
     path: dest,
   }, callback);
 }
-// update gensis block
+
+function localPath(asset) {
+  console.info('updating asset: ', asset);
+  return path.join(__dirname, '../../dashboard', asset);
+}
+
+function remotePath(asset) {
+  return `workspace/dashboard/${asset}`;
+}
+
+function updateDashboardAsset(host, username, asset, callback) {
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
+}
 
 function updateGenesisConfig(host, username, callback) {
-  const localPath = path.join(__dirname, '../../dashboard', 'config', 'genesis.json');
-  const remotePath = 'workspace/dashboard/config/genesis.json';
-
-  execScp(host, username, localPath, remotePath, callback);
+  const asset = 'config/genesis.json';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
 }
 
-// update start geth script
 function updateStartGethScript(host, username, callback) {
-  const localPath = path.join(__dirname, '../../dashboard', 'start-geth.js');
-  const remotePath = 'workspace/dashboard/start-geth.js';
-
-  execScp(host, username, localPath, remotePath, callback);
-}
-
-// update dashboard js. Extremely heavy as node_modules involved
-function updateDashboard(host, username, callback) {
-  const localPath = path.join(__dirname, '../../dashboard');
-  const remotePath = 'workspace/dashboard';
-
-  execScp(host, username, localPath, remotePath, callback);
+  const asset = 'start-geth.js';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
 }
 
 function updateDashboardMainJs(host, username, callback) {
-  const localPath = path.join(__dirname, '../../dashboard', 'public', 'javascripts', 'main.js');
-  const remotePath = 'workspace/dashboard/public/javascripts/main.js';
-
-  execScp(host, username, localPath, remotePath, callback);
+  const asset = 'public/javascripts/main.js';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
 }
 
 function updateDashboardIndex(host, username, callback) {
-  const localPath = path.join(__dirname, '../../dashboard', 'views', 'index.ejs');
-  const remotePath = 'workspace/dashboard/views/index.ejs';
+  const asset = 'views/index.ejs';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
+}
 
-  execScp(host, username, localPath, remotePath, callback);
+function updateSealingLedScript(host, username, callback) {
+  const asset = 'sealing-led.js';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
 }
 
 module.exports = {
-  updateGenesisConfig,
-  updateStartGethScript,
-  updateDashboard,
   updateDashboardMainJs,
   updateDashboardIndex,
+  updateGenesisConfig,
+  updateSealingLedScript,
+  updateStartGethScript,
+  updateDashboardAsset,
 };
