@@ -47,7 +47,12 @@ function updateDashboardIndex(host, username, callback) {
 }
 
 function updateSealingLedScript(host, username, callback) {
-  const asset = 'sealing-led.js';
+  const asset = 'bin/sealing-led-final.js';
+  execScp(host, username, localPath(asset), remotePath(asset), callback);
+}
+
+function updateSolarContracts(host, username, callback) {
+  const asset = 'solarunit/build/contracts';
   execScp(host, username, localPath(asset), remotePath(asset), callback);
 }
 
@@ -58,4 +63,5 @@ module.exports = {
   updateSealingLedScript,
   updateStartGethScript,
   updateDashboardAsset,
+  updateSolarContracts,
 };

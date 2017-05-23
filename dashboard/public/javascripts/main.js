@@ -1753,7 +1753,7 @@
 
 var BigNumber = __webpack_require__(11);
 var sha3 = __webpack_require__(12);
-var utf8 = __webpack_require__(79);
+var utf8 = __webpack_require__(78);
 
 var unitMap = {
     'noether':      '0',    
@@ -2375,7 +2375,7 @@ module.exports = {
 var BigNumber = __webpack_require__(11);
 var utils = __webpack_require__(2);
 var c = __webpack_require__(15);
-var SolidityParam = __webpack_require__(34);
+var SolidityParam = __webpack_require__(33);
 
 
 /**
@@ -2609,7 +2609,7 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
-var SolidityParam = __webpack_require__(34);
+var SolidityParam = __webpack_require__(33);
 
 /**
  * SolidityType prototype is used to encode/decode solidity params of certain type
@@ -6761,7 +6761,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v2.0.7 https://github.com/Mik
  * @date 2015
  */
 
-var CryptoJS = __webpack_require__(43);
+var CryptoJS = __webpack_require__(41);
 var sha3 = __webpack_require__(29);
 
 module.exports = function (value, options) {
@@ -7855,9 +7855,9 @@ module.exports = g;
 
 
 
-var base64 = __webpack_require__(39)
-var ieee754 = __webpack_require__(66)
-var isArray = __webpack_require__(68)
+var base64 = __webpack_require__(37)
+var ieee754 = __webpack_require__(63)
+var isArray = __webpack_require__(65)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -9944,7 +9944,7 @@ function isnan (val) {
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Web3 = __webpack_require__(94);
+var Web3 = __webpack_require__(93);
 
 // dont override global variable
 if (typeof window !== 'undefined' && typeof window.Web3 === 'undefined') {
@@ -9982,15 +9982,15 @@ module.exports = Web3;
 
 var f = __webpack_require__(3);
 
-var SolidityTypeAddress = __webpack_require__(83);
-var SolidityTypeBool = __webpack_require__(84);
-var SolidityTypeInt = __webpack_require__(87);
-var SolidityTypeUInt = __webpack_require__(90);
-var SolidityTypeDynamicBytes = __webpack_require__(86);
-var SolidityTypeString = __webpack_require__(89);
-var SolidityTypeReal = __webpack_require__(88);
-var SolidityTypeUReal = __webpack_require__(91);
-var SolidityTypeBytes = __webpack_require__(85);
+var SolidityTypeAddress = __webpack_require__(82);
+var SolidityTypeBool = __webpack_require__(83);
+var SolidityTypeInt = __webpack_require__(86);
+var SolidityTypeUInt = __webpack_require__(89);
+var SolidityTypeDynamicBytes = __webpack_require__(85);
+var SolidityTypeString = __webpack_require__(88);
+var SolidityTypeReal = __webpack_require__(87);
+var SolidityTypeUReal = __webpack_require__(90);
+var SolidityTypeBytes = __webpack_require__(84);
 
 var isDynamic = function (solidityType, type) {
    return solidityType.isDynamicType(type) ||
@@ -10264,7 +10264,14 @@ module.exports = function(module) {
  * Get local host without port number
  */
 function getHost() {
-  let host = window.location.host;
+  let host;
+
+  if (typeof window !== 'undefined') {
+    host = window.location.host;
+  } else {
+    host = 'localhost';
+  }
+
   const portPosition = host.indexOf(':');
 
   if (portPosition > -1) {
@@ -10274,23 +10281,15 @@ function getHost() {
   return host;
 }
 
-/**
- * Base class that provides access to web3 instance connected to local host
- */
 let instance;
 
-class Web3Enabled {
+class Web3Configurer {
   static getInstance() {
     instance = instance || new __WEBPACK_IMPORTED_MODULE_0_web3___default.a(new __WEBPACK_IMPORTED_MODULE_0_web3___default.a.providers.HttpProvider(`http://${getHost()}:8545`));
     return instance;
   }
-
-
-  constructor() {
-    this.web3 = Web3Enabled.getInstance();
-  }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Web3Enabled;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Web3Configurer;
 
 
 
@@ -25617,76 +25616,6 @@ return jQuery;
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Schema = __webpack_require__(74);
-var Contract = __webpack_require__(78);
-
-var contract = function(options) {
-  options = Schema.normalizeOptions(options);
-  var binary = Schema.generateBinary(options, {}, {dirty: false});
-
-  // Note we don't use `new` here at all. This will cause the class to
-  // "mutate" instead of instantiate an instance.
-  return Contract.clone(binary);
-};
-
-// To be used to upgrade old .sol.js abstractions
-contract.fromSolJS = function(soljs_abstraction, ignore_default_network) {
-  if (ignore_default_network == null) {
-    ignore_default_network = false;
-  }
-
-  // Find the latest binary
-  var latest_network = null;
-  var latest_network_updated_at = 0;
-
-  var networks = {};
-
-  Object.keys(soljs_abstraction.all_networks).forEach(function(network_name) {
-
-    if (network_name == "default") {
-      if (ignore_default_network == true ) {
-        return;
-      } else {
-        throw new Error(soljs_abstraction.contract_name + " has legacy 'default' network artifacts stored within it. Generally these artifacts were a result of running Truffle on a development environment -- in order to store contracts with truffle-contract, all networks must have an identified id. If you're sure this default network represents your development environment, you can ignore processing of the default network by passing `true` as the second argument to this function. However, if you think this network represents artifacts you'd like to keep (i.e., addresses deployed to the main network), you'll need to edit your .sol.js file yourself and change the default network id to be the id of your desired network. For most people, ignoring the default network is the correct option.");
-      }
-    }
-
-    if (soljs_abstraction.all_networks[network_name].updated_at > latest_network_updated_at) {
-      latest_network = network_name;
-      latest_network_updated_at = soljs_abstraction.all_networks[network_name].updated_at;
-    }
-
-    networks[network_name] = {};
-
-    ["address", "events", "links", "updated_at"].forEach(function(key) {
-      networks[network_name][key] = soljs_abstraction.all_networks[network_name][key];
-    })
-  });
-
-  latest_network = soljs_abstraction.all_networks[latest_network] || {};
-
-  var json = {
-    contract_name: soljs_abstraction.contract_name,
-    unlinked_binary: latest_network.unlinked_binary,
-    abi: latest_network.abi,
-    networks: networks,
-    updated_at: latest_network_updated_at == 0 ? undefined : latest_network_updated_at
-  };
-
-  return contract(json);
-};
-
-module.exports = contract;
-
-if (typeof window !== "undefined") {
-  window.TruffleContract = contract;
-}
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /*
     This file is part of web3.js.
 
@@ -25842,7 +25771,7 @@ module.exports = SolidityParam;
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -26056,7 +25985,7 @@ module.exports = SolidityEvent;
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports) {
 
 /*
@@ -26147,247 +26076,104 @@ module.exports = Jsonrpc;
 
 
 /***/ }),
-/* 37 */
-/***/ (function(module, exports) {
-
-module.exports = {
-	"contract_name": "SolarUnit",
-	"abi": [
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"name": "addr",
-					"type": "address"
-				}
-			],
-			"name": "getBalanceInEth",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"name": "receiver",
-					"type": "address"
-				},
-				{
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "sendCoin",
-			"outputs": [
-				{
-					"name": "sufficient",
-					"type": "bool"
-				}
-			],
-			"payable": false,
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"name": "addr",
-					"type": "address"
-				}
-			],
-			"name": "getBalance",
-			"outputs": [
-				{
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"payable": false,
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"payable": false,
-			"type": "constructor"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": true,
-					"name": "_from",
-					"type": "address"
-				},
-				{
-					"indexed": true,
-					"name": "_to",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"name": "_value",
-					"type": "uint256"
-				}
-			],
-			"name": "Transfer",
-			"type": "event"
-		}
-	],
-	"unlinked_binary": "0x606060405234610000575b600160a060020a033216600090815260208190526040902061271090555b5b610223806100386000396000f300606060405263ffffffff60e060020a6000350416637bd703e8811461003a57806390b98a1114610065578063f8b2cb4f14610095575b610000565b3461000057610053600160a060020a03600435166100c0565b60408051918252519081900360200190f35b3461000057610081600160a060020a0360043516602435610140565b604080519115158252519081900360200190f35b3461000057610053600160a060020a03600435166101d8565b60408051918252519081900360200190f35b600073__ConvertLib____________________________6396e4ee3d6100e5846101d8565b60026000604051602001526040518363ffffffff1660e060020a028152600401808381526020018281526020019250505060206040518083038186803b156100005760325a03f415610000575050604051519150505b919050565b600160a060020a03331660009081526020819052604081205482901015610169575060006101d2565b600160a060020a0333811660008181526020818152604080832080548890039055938716808352918490208054870190558351868152935191937fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef929081900390910190a35060015b92915050565b600160a060020a0381166000908152602081905260409020545b9190505600a165627a7a723058208c2092bc50ab5a738a650f7bb3d4580eb98ef9db6b847e773a3bbc3a051551780029",
-	"networks": {
-		"9999": {
-			"events": {
-				"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
-					"anonymous": false,
-					"inputs": [
-						{
-							"indexed": true,
-							"name": "_from",
-							"type": "address"
-						},
-						{
-							"indexed": true,
-							"name": "_to",
-							"type": "address"
-						},
-						{
-							"indexed": false,
-							"name": "_value",
-							"type": "uint256"
-						}
-					],
-					"name": "Transfer",
-					"type": "event"
-				}
-			},
-			"links": {
-				"ConvertLib": "0x9d7634b3e4b949d835dbfcc037cd81135d8772a2"
-			},
-			"address": "0x57dd9d119232d5aa943bb281a6ec16d70f98cc46",
-			"updated_at": 1494271449659
-		}
-	},
-	"schema_version": "0.0.5",
-	"updated_at": 1494271449659
-};
-
-/***/ }),
-/* 38 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__web3_enabled__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__web3_configurer__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__local_node__ = __webpack_require__(114);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__solar_coin_service__ = __webpack_require__(115);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__solar_unit_service__ = __webpack_require__(115);
 
 
 
 
 
-__webpack_require__(69);
+__webpack_require__(66);
 
 // import SolidityCoder from 'web3/lib/solidity/coder';
 
-const web3 = __WEBPACK_IMPORTED_MODULE_1__web3_enabled__["a" /* default */].getInstance();
+const web3 = __WEBPACK_IMPORTED_MODULE_1__web3_configurer__["a" /* default */].getInstance();
 
 // export on dev console
 window.web3 = web3;
 
 // Setup filter to watch transactions
 
-const filter = web3.eth.filter('latest');
-
-filter.watch((error, result) => {
-  if (error) return;
-
-  const block = web3.eth.getBlock(result, true);
-  console.log(`block #${block.number}`, block);
-
-  console.dir(block.transactions);
-
-  // for (let index = 0; index < block.transactions.length; index++) {
-  //   const t = block.transactions[index];
-  //
-  //   // Decode from
-  //   const from = t.from == account ? 'me' : t.from;
-  //
-  //   // Decode function
-  //   const func = findFunctionByHash(functionHashes, t.input);
-  //
-  //   if (func == 'sellEnergy') {
-  //     // This is the sellEnergy() method
-  //     var inputData = SolidityCoder.decodeParams(['uint256'], t.input.substring(10));
-  //     console.dir(inputData);
-  //     $('#transactions').append(`<tr><td>${t.blockNumber
-  //       }</td><td>${from
-  //       }</td><td>` + 'ApolloTrade' +
-  //       `</td><td>sellEnergy(${inputData[0].toString()})</td></tr>`);
-  //   } else if (func == 'buyEnergy') {
-  //     // This is the buyEnergy() method
-  //     var inputData = SolidityCoder.decodeParams(['uint256'], t.input.substring(10));
-  //     console.dir(inputData);
-  //     $('#transactions').append(`<tr><td>${t.blockNumber
-  //       }</td><td>${from
-  //       }</td><td>` + 'ApolloTrade' +
-  //       `</td><td>buyEnergy(${inputData[0].toString()})</td></tr>`);
-  //   } else {
-  //     // Default log
-  //     $('#transactions').append(`<tr><td>${t.blockNumber}</td><td>${from}</td><td>${t.to}</td><td>${t.input}</td></tr>`);
-  //   }
-  // }
-});
+// const filter = web3.eth.filter('latest');
+//
+// filter.watch((error, result) => {
+//   if (error) return;
+//
+//   const block = web3.eth.getBlock(result, true);
+//   console.log(`block #${block.number}`, block);
+//
+//   console.dir('transaction in block', block.transactions);
+// });
+//
+// filter.stopWatching();
 
 // Update labels
 __WEBPACK_IMPORTED_MODULE_0_jquery___default()(() => {
   console.log('Document ready');
+
+  const solarUnitService = new __WEBPACK_IMPORTED_MODULE_3__solar_unit_service__["a" /* default */]();
   const localNode = new __WEBPACK_IMPORTED_MODULE_2__local_node__["a" /* default */]();
-  const solarCoinService = new __WEBPACK_IMPORTED_MODULE_3__solar_coin_service__["a" /* default */]();
 
-  __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_form').submit((e) => {
-    e.preventDefault();
+  function setSelector(selector, value) {
+    if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(selector).text() !== String(value)) { __WEBPACK_IMPORTED_MODULE_0_jquery___default()(selector).text(value).effect('highlight'); }
+  }
 
-    const amountText = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_amount').val();
-    const amount = parseInt(amountText, 10);
-    const address = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_address').val();
+  function pollAccount(account) {
+    const date = new Date().toLocaleString();
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#date').text(date);
+    console.log(`${date}: Running poll ${account}`);
 
 
-    solarCoinService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
-      console.log('the result of sending coins', res);
-      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#message').addClass('alert alert-info').text(`Coins sent to ${address}`);
-    });
-  });
-
-  setInterval(() => {
     // Account balance in Ether
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#label1').text(localNode.getBalance());
-
-    // Block number
-    const number = web3.eth.blockNumber;
-    if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()('#label2').text() != number) { __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#label2').text(number).effect('highlight'); }
-
-    // Solar coin balance
-    solarCoinService.getBalance(localNode.getPrimaryAccount()).then((solarCoinBalance) => {
-      console.info('Retreived from rpc api. Solar coin balance', solarCoinBalance);
-
-      if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()('#label3').text() != solarCoinBalance) {
-        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#label3').text(solarCoinBalance).effect('highlight');
-      }
+    localNode.getFormattedBalance(account, (balance) => {
+      setSelector('#balance', balance);
     });
-  }, 3000);
+
+    localNode.getBlockNumber((blockNumber) => {
+      setSelector('#block_number', blockNumber);
+    });
+
+    // Solar unit balance
+    solarUnitService.getBalance(account).then((solarUnitBalance) => {
+      console.info('Retreived from rpc api. Solar unit balance', solarUnitBalance);
+      setSelector('#solar_balance', solarUnitBalance);
+    });
+  }
+
+
+  localNode.getPrimaryAccount((account) => {
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#address').text(account);
+
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_form').submit((e) => {
+      e.preventDefault();
+
+      const amountText = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_amount').val();
+      const amount = parseInt(amountText, 10);
+      const address = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#send_coins_address').val();
+
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#message').removeClass().addClass('alert alert-info').text(`Transfer pending to ${address}`);
+
+      solarUnitService.sendCoins(address, amount, account).then((res) => {
+        console.log('the result of sending units', res);
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#message').removeClass().addClass('alert alert-success').text(`Units sent to ${address}`);
+      });
+    });
+
+    setInterval(pollAccount.bind(this, account), 1000);
+  });
 });
 
 
 /***/ }),
-/* 39 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26508,7 +26294,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 40 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -26745,7 +26531,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 41 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -26899,7 +26685,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 42 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -26970,13 +26756,13 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 43 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
 	if (true) {
 		// CommonJS
-		module.exports = exports = factory(__webpack_require__(0), __webpack_require__(14), __webpack_require__(44), __webpack_require__(41), __webpack_require__(7), __webpack_require__(9), __webpack_require__(22), __webpack_require__(28), __webpack_require__(60), __webpack_require__(30), __webpack_require__(61), __webpack_require__(29), __webpack_require__(59), __webpack_require__(21), __webpack_require__(55), __webpack_require__(8), __webpack_require__(1), __webpack_require__(45), __webpack_require__(47), __webpack_require__(46), __webpack_require__(49), __webpack_require__(48), __webpack_require__(50), __webpack_require__(51), __webpack_require__(52), __webpack_require__(54), __webpack_require__(53), __webpack_require__(42), __webpack_require__(40), __webpack_require__(62), __webpack_require__(58), __webpack_require__(57), __webpack_require__(56));
+		module.exports = exports = factory(__webpack_require__(0), __webpack_require__(14), __webpack_require__(42), __webpack_require__(39), __webpack_require__(7), __webpack_require__(9), __webpack_require__(22), __webpack_require__(28), __webpack_require__(58), __webpack_require__(30), __webpack_require__(59), __webpack_require__(29), __webpack_require__(57), __webpack_require__(21), __webpack_require__(53), __webpack_require__(8), __webpack_require__(1), __webpack_require__(43), __webpack_require__(45), __webpack_require__(44), __webpack_require__(47), __webpack_require__(46), __webpack_require__(48), __webpack_require__(49), __webpack_require__(50), __webpack_require__(52), __webpack_require__(51), __webpack_require__(40), __webpack_require__(38), __webpack_require__(60), __webpack_require__(56), __webpack_require__(55), __webpack_require__(54));
 	}
 	else if (typeof define === "function" && define.amd) {
 		// AMD
@@ -26993,7 +26779,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 44 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -27074,7 +26860,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 45 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27157,7 +26943,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 46 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27278,7 +27064,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 47 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27341,7 +27127,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 48 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27386,7 +27172,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 49 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27445,7 +27231,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 50 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27499,7 +27285,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 51 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27548,7 +27334,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 52 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27593,7 +27379,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 53 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27628,7 +27414,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 54 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27678,7 +27464,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 55 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -27828,7 +27614,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 56 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -28023,7 +27809,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 57 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -28220,7 +28006,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 58 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -28364,7 +28150,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 59 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -28636,7 +28422,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 60 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -28721,7 +28507,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 61 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -28809,7 +28595,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 62 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -29584,7 +29370,7 @@ function fromByteArray (uint8) {
 }));
 
 /***/ }),
-/* 63 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29592,7 +29378,7 @@ function fromByteArray (uint8) {
 
 /* eslint-disable */
 
-var utils = __webpack_require__(64);
+var utils = __webpack_require__(62);
 var uint256Coder = utils.uint256Coder;
 var coderBoolean = utils.coderBoolean;
 var coderFixedBytes = utils.coderFixedBytes;
@@ -29724,15 +29510,15 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
 
 /***/ }),
-/* 64 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
 var BN = __webpack_require__(27);
-var numberToBN = __webpack_require__(70);
-var keccak256 = __webpack_require__(65).keccak_256;
+var numberToBN = __webpack_require__(68);
+var keccak256 = __webpack_require__(67).keccak_256;
 
 // from ethereumjs-util
 function stripZeros(aInput) {
@@ -30148,485 +29934,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
 
 /***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process, global) {/**
- * [js-sha3]{@link https://github.com/emn178/js-sha3}
- *
- * @version 0.5.5
- * @author Chen, Yi-Cyuan [emn178@gmail.com]
- * @copyright Chen, Yi-Cyuan 2015-2016
- * @license MIT
- */
-(function (root) {
-  'use strict';
-
-  var NODE_JS = typeof process == 'object' && process.versions && process.versions.node;
-  if (NODE_JS) {
-    root = global;
-  }
-  var COMMON_JS = !root.JS_SHA3_TEST && typeof module == 'object' && module.exports;
-  var HEX_CHARS = '0123456789abcdef'.split('');
-  var SHAKE_PADDING = [31, 7936, 2031616, 520093696];
-  var KECCAK_PADDING = [1, 256, 65536, 16777216];
-  var PADDING = [6, 1536, 393216, 100663296];
-  var SHIFT = [0, 8, 16, 24];
-  var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
-            0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0, 
-            2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771, 
-            2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
-            2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
-  var BITS = [224, 256, 384, 512];
-  var SHAKE_BITS = [128, 256];
-  var OUTPUT_TYPES = ['hex', 'buffer', 'arrayBuffer', 'array'];
-
-  var createOutputMethod = function (bits, padding, outputType) {
-    return function (message) {
-      return new Keccak(bits, padding, bits).update(message)[outputType]();
-    }
-  };
-
-  var createShakeOutputMethod = function (bits, padding, outputType) {
-    return function (message, outputBits) {
-      return new Keccak(bits, padding, outputBits).update(message)[outputType]();
-    }
-  };
-
-  var createMethod = function (bits, padding) {
-    var method = createOutputMethod(bits, padding, 'hex');
-    method.create = function () {
-      return new Keccak(bits, padding, bits);
-    };
-    method.update = function (message) {
-      return method.create().update(message);
-    };
-    for (var i = 0;i < OUTPUT_TYPES.length;++i) {
-      var type = OUTPUT_TYPES[i];
-      method[type] = createOutputMethod(bits, padding, type);
-    }
-    return method;
-  };
-
-  var createShakeMethod = function (bits, padding) {
-    var method = createShakeOutputMethod(bits, padding, 'hex');
-    method.create = function (outputBits) {
-      return new Keccak(bits, padding, outputBits);
-    };
-    method.update = function (message, outputBits) {
-      return method.create(outputBits).update(message);
-    };
-    for (var i = 0;i < OUTPUT_TYPES.length;++i) {
-      var type = OUTPUT_TYPES[i];
-      method[type] = createShakeOutputMethod(bits, padding, type);
-    }
-    return method;
-  };
-
-  var algorithms = [
-    {name: 'keccak', padding: KECCAK_PADDING, bits: BITS, createMethod: createMethod},
-    {name: 'sha3', padding: PADDING, bits: BITS, createMethod: createMethod},
-    {name: 'shake', padding: SHAKE_PADDING, bits: SHAKE_BITS, createMethod: createShakeMethod}
-  ];
-
-  var methods = {};
-
-  for (var i = 0;i < algorithms.length;++i) {
-    var algorithm = algorithms[i];
-    var bits  = algorithm.bits;
-    for (var j = 0;j < bits.length;++j) {
-      methods[algorithm.name +'_' + bits[j]] = algorithm.createMethod(bits[j], algorithm.padding);
-    }
-  }
-
-  function Keccak(bits, padding, outputBits) {
-    this.blocks = [];
-    this.s = [];
-    this.padding = padding;
-    this.outputBits = outputBits;
-    this.reset = true;
-    this.block = 0;
-    this.start = 0;
-    this.blockCount = (1600 - (bits << 1)) >> 5;
-    this.byteCount = this.blockCount << 2;
-    this.outputBlocks = outputBits >> 5;
-    this.extraBytes = (outputBits & 31) >> 3;
-
-    for (var i = 0;i < 50;++i) {
-      this.s[i] = 0;
-    }
-  };
-
-  Keccak.prototype.update = function (message) {
-    var notString = typeof message != 'string';
-    if (notString && message.constructor == root.ArrayBuffer) {
-      message = new Uint8Array(message);
-    }
-    var length = message.length, blocks = this.blocks, byteCount = this.byteCount, 
-        blockCount = this.blockCount, index = 0, s = this.s, i, code;
-    
-    while (index < length) {
-      if (this.reset) {
-        this.reset = false;
-        blocks[0] = this.block;
-        for (i = 1;i < blockCount + 1;++i) {
-          blocks[i] = 0;
-        }
-      }
-      if (notString) {
-        for (i = this.start;index < length && i < byteCount;++index) {
-          blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
-        }
-      } else {
-        for (i = this.start;index < length && i < byteCount;++index) {
-          code = message.charCodeAt(index);
-          if (code < 0x80) {
-            blocks[i >> 2] |= code << SHIFT[i++ & 3];
-          } else if (code < 0x800) {
-            blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-          } else if (code < 0xd800 || code >= 0xe000) {
-            blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-          } else {
-            code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
-            blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
-            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-          }
-        }
-      }
-      this.lastByteIndex = i;
-      if (i >= byteCount) {
-        this.start = i - byteCount;
-        this.block = blocks[blockCount];
-        for (i = 0;i < blockCount;++i) {
-          s[i] ^= blocks[i];
-        }
-        f(s);
-        this.reset = true;
-      } else {
-        this.start = i;
-      }
-    }
-    return this;
-  };
-
-  Keccak.prototype.finalize = function () {
-    var blocks = this.blocks, i = this.lastByteIndex, blockCount = this.blockCount, s = this.s;
-    blocks[i >> 2] |= this.padding[i & 3];
-    if (this.lastByteIndex == this.byteCount) {
-      blocks[0] = blocks[blockCount];
-      for (i = 1;i < blockCount + 1;++i) {
-        blocks[i] = 0;
-      }
-    }
-    blocks[blockCount - 1] |= 0x80000000;
-    for (i = 0;i < blockCount;++i) {
-      s[i] ^= blocks[i];
-    }
-    f(s);
-  };
-
-  Keccak.prototype.toString = Keccak.prototype.hex = function () {
-    this.finalize();
-
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
-        extraBytes = this.extraBytes, i = 0, j = 0;
-    var hex = '', block;
-    while (j < outputBlocks) {
-      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
-        block = s[i];
-        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F] +
-               HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F] +
-               HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F] +
-               HEX_CHARS[(block >> 28) & 0x0F] + HEX_CHARS[(block >> 24) & 0x0F];
-      }
-      if (j % blockCount == 0) {
-        f(s);
-        i = 0;
-      }
-    }
-    if (extraBytes) {
-      block = s[i];
-      if (extraBytes > 0) {
-        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F];
-      }
-      if (extraBytes > 1) {
-        hex += HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F];
-      }
-      if (extraBytes > 2) {
-        hex += HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F];
-      }
-    }
-    return hex;
-  };
-
-  Keccak.prototype.arrayBuffer = function () {
-    this.finalize();
-
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
-        extraBytes = this.extraBytes, i = 0, j = 0;
-    var bytes = this.outputBits >> 3;
-    var buffer;
-    if (extraBytes) {
-      buffer = new ArrayBuffer((outputBlocks + 1) << 2);
-    } else {
-      buffer = new ArrayBuffer(bytes);
-    }
-    var array = new Uint32Array(buffer);
-    while (j < outputBlocks) {
-      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
-        array[j] = s[i];
-      }
-      if (j % blockCount == 0) {
-        f(s);
-      }
-    }
-    if (extraBytes) {
-      array[i] = s[i];
-      buffer = buffer.slice(0, bytes);
-    }
-    return buffer;
-  };
-
-  Keccak.prototype.buffer = Keccak.prototype.arrayBuffer;
-
-  Keccak.prototype.digest = Keccak.prototype.array = function () {
-    this.finalize();
-
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
-        extraBytes = this.extraBytes, i = 0, j = 0;
-    var array = [], offset, block;
-    while (j < outputBlocks) {
-      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
-        offset = j << 2;
-        block = s[i];
-        array[offset] = block & 0xFF;
-        array[offset + 1] = (block >> 8) & 0xFF;
-        array[offset + 2] = (block >> 16) & 0xFF;
-        array[offset + 3] = (block >> 24) & 0xFF;
-      }
-      if (j % blockCount == 0) {
-        f(s);
-      }
-    }
-    if (extraBytes) {
-      offset = j << 2;
-      block = s[i];
-      if (extraBytes > 0) {
-        array[offset] = block & 0xFF;
-      }
-      if (extraBytes > 1) {
-        array[offset + 1] = (block >> 8) & 0xFF;
-      }
-      if (extraBytes > 2) {
-        array[offset + 2] = (block >> 16) & 0xFF;
-      }
-    }
-    return array;
-  };
-
-  var f = function (s) {
-    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, 
-        b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, 
-        b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33, 
-        b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
-    for (n = 0;n < 48;n += 2) {
-      c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];
-      c1 = s[1] ^ s[11] ^ s[21] ^ s[31] ^ s[41];
-      c2 = s[2] ^ s[12] ^ s[22] ^ s[32] ^ s[42];
-      c3 = s[3] ^ s[13] ^ s[23] ^ s[33] ^ s[43];
-      c4 = s[4] ^ s[14] ^ s[24] ^ s[34] ^ s[44];
-      c5 = s[5] ^ s[15] ^ s[25] ^ s[35] ^ s[45];
-      c6 = s[6] ^ s[16] ^ s[26] ^ s[36] ^ s[46];
-      c7 = s[7] ^ s[17] ^ s[27] ^ s[37] ^ s[47];
-      c8 = s[8] ^ s[18] ^ s[28] ^ s[38] ^ s[48];
-      c9 = s[9] ^ s[19] ^ s[29] ^ s[39] ^ s[49];
-
-      h = c8 ^ ((c2 << 1) | (c3 >>> 31));
-      l = c9 ^ ((c3 << 1) | (c2 >>> 31));
-      s[0] ^= h;
-      s[1] ^= l;
-      s[10] ^= h;
-      s[11] ^= l;
-      s[20] ^= h;
-      s[21] ^= l;
-      s[30] ^= h;
-      s[31] ^= l;
-      s[40] ^= h;
-      s[41] ^= l;
-      h = c0 ^ ((c4 << 1) | (c5 >>> 31));
-      l = c1 ^ ((c5 << 1) | (c4 >>> 31));
-      s[2] ^= h;
-      s[3] ^= l;
-      s[12] ^= h;
-      s[13] ^= l;
-      s[22] ^= h;
-      s[23] ^= l;
-      s[32] ^= h;
-      s[33] ^= l;
-      s[42] ^= h;
-      s[43] ^= l;
-      h = c2 ^ ((c6 << 1) | (c7 >>> 31));
-      l = c3 ^ ((c7 << 1) | (c6 >>> 31));
-      s[4] ^= h;
-      s[5] ^= l;
-      s[14] ^= h;
-      s[15] ^= l;
-      s[24] ^= h;
-      s[25] ^= l;
-      s[34] ^= h;
-      s[35] ^= l;
-      s[44] ^= h;
-      s[45] ^= l;
-      h = c4 ^ ((c8 << 1) | (c9 >>> 31));
-      l = c5 ^ ((c9 << 1) | (c8 >>> 31));
-      s[6] ^= h;
-      s[7] ^= l;
-      s[16] ^= h;
-      s[17] ^= l;
-      s[26] ^= h;
-      s[27] ^= l;
-      s[36] ^= h;
-      s[37] ^= l;
-      s[46] ^= h;
-      s[47] ^= l;
-      h = c6 ^ ((c0 << 1) | (c1 >>> 31));
-      l = c7 ^ ((c1 << 1) | (c0 >>> 31));
-      s[8] ^= h;
-      s[9] ^= l;
-      s[18] ^= h;
-      s[19] ^= l;
-      s[28] ^= h;
-      s[29] ^= l;
-      s[38] ^= h;
-      s[39] ^= l;
-      s[48] ^= h;
-      s[49] ^= l;
-
-      b0 = s[0];
-      b1 = s[1];
-      b32 = (s[11] << 4) | (s[10] >>> 28);
-      b33 = (s[10] << 4) | (s[11] >>> 28);
-      b14 = (s[20] << 3) | (s[21] >>> 29);
-      b15 = (s[21] << 3) | (s[20] >>> 29);
-      b46 = (s[31] << 9) | (s[30] >>> 23);
-      b47 = (s[30] << 9) | (s[31] >>> 23);
-      b28 = (s[40] << 18) | (s[41] >>> 14);
-      b29 = (s[41] << 18) | (s[40] >>> 14);
-      b20 = (s[2] << 1) | (s[3] >>> 31);
-      b21 = (s[3] << 1) | (s[2] >>> 31);
-      b2 = (s[13] << 12) | (s[12] >>> 20);
-      b3 = (s[12] << 12) | (s[13] >>> 20);
-      b34 = (s[22] << 10) | (s[23] >>> 22);
-      b35 = (s[23] << 10) | (s[22] >>> 22);
-      b16 = (s[33] << 13) | (s[32] >>> 19);
-      b17 = (s[32] << 13) | (s[33] >>> 19);
-      b48 = (s[42] << 2) | (s[43] >>> 30);
-      b49 = (s[43] << 2) | (s[42] >>> 30);
-      b40 = (s[5] << 30) | (s[4] >>> 2);
-      b41 = (s[4] << 30) | (s[5] >>> 2);
-      b22 = (s[14] << 6) | (s[15] >>> 26);
-      b23 = (s[15] << 6) | (s[14] >>> 26);
-      b4 = (s[25] << 11) | (s[24] >>> 21);
-      b5 = (s[24] << 11) | (s[25] >>> 21);
-      b36 = (s[34] << 15) | (s[35] >>> 17);
-      b37 = (s[35] << 15) | (s[34] >>> 17);
-      b18 = (s[45] << 29) | (s[44] >>> 3);
-      b19 = (s[44] << 29) | (s[45] >>> 3);
-      b10 = (s[6] << 28) | (s[7] >>> 4);
-      b11 = (s[7] << 28) | (s[6] >>> 4);
-      b42 = (s[17] << 23) | (s[16] >>> 9);
-      b43 = (s[16] << 23) | (s[17] >>> 9);
-      b24 = (s[26] << 25) | (s[27] >>> 7);
-      b25 = (s[27] << 25) | (s[26] >>> 7);
-      b6 = (s[36] << 21) | (s[37] >>> 11);
-      b7 = (s[37] << 21) | (s[36] >>> 11);
-      b38 = (s[47] << 24) | (s[46] >>> 8);
-      b39 = (s[46] << 24) | (s[47] >>> 8);
-      b30 = (s[8] << 27) | (s[9] >>> 5);
-      b31 = (s[9] << 27) | (s[8] >>> 5);
-      b12 = (s[18] << 20) | (s[19] >>> 12);
-      b13 = (s[19] << 20) | (s[18] >>> 12);
-      b44 = (s[29] << 7) | (s[28] >>> 25);
-      b45 = (s[28] << 7) | (s[29] >>> 25);
-      b26 = (s[38] << 8) | (s[39] >>> 24);
-      b27 = (s[39] << 8) | (s[38] >>> 24);
-      b8 = (s[48] << 14) | (s[49] >>> 18);
-      b9 = (s[49] << 14) | (s[48] >>> 18);
-
-      s[0] = b0 ^ (~b2 & b4);
-      s[1] = b1 ^ (~b3 & b5);
-      s[10] = b10 ^ (~b12 & b14);
-      s[11] = b11 ^ (~b13 & b15);
-      s[20] = b20 ^ (~b22 & b24);
-      s[21] = b21 ^ (~b23 & b25);
-      s[30] = b30 ^ (~b32 & b34);
-      s[31] = b31 ^ (~b33 & b35);
-      s[40] = b40 ^ (~b42 & b44);
-      s[41] = b41 ^ (~b43 & b45);
-      s[2] = b2 ^ (~b4 & b6);
-      s[3] = b3 ^ (~b5 & b7);
-      s[12] = b12 ^ (~b14 & b16);
-      s[13] = b13 ^ (~b15 & b17);
-      s[22] = b22 ^ (~b24 & b26);
-      s[23] = b23 ^ (~b25 & b27);
-      s[32] = b32 ^ (~b34 & b36);
-      s[33] = b33 ^ (~b35 & b37);
-      s[42] = b42 ^ (~b44 & b46);
-      s[43] = b43 ^ (~b45 & b47);
-      s[4] = b4 ^ (~b6 & b8);
-      s[5] = b5 ^ (~b7 & b9);
-      s[14] = b14 ^ (~b16 & b18);
-      s[15] = b15 ^ (~b17 & b19);
-      s[24] = b24 ^ (~b26 & b28);
-      s[25] = b25 ^ (~b27 & b29);
-      s[34] = b34 ^ (~b36 & b38);
-      s[35] = b35 ^ (~b37 & b39);
-      s[44] = b44 ^ (~b46 & b48);
-      s[45] = b45 ^ (~b47 & b49);
-      s[6] = b6 ^ (~b8 & b0);
-      s[7] = b7 ^ (~b9 & b1);
-      s[16] = b16 ^ (~b18 & b10);
-      s[17] = b17 ^ (~b19 & b11);
-      s[26] = b26 ^ (~b28 & b20);
-      s[27] = b27 ^ (~b29 & b21);
-      s[36] = b36 ^ (~b38 & b30);
-      s[37] = b37 ^ (~b39 & b31);
-      s[46] = b46 ^ (~b48 & b40);
-      s[47] = b47 ^ (~b49 & b41);
-      s[8] = b8 ^ (~b0 & b2);
-      s[9] = b9 ^ (~b1 & b3);
-      s[18] = b18 ^ (~b10 & b12);
-      s[19] = b19 ^ (~b11 & b13);
-      s[28] = b28 ^ (~b20 & b22);
-      s[29] = b29 ^ (~b21 & b23);
-      s[38] = b38 ^ (~b30 & b32);
-      s[39] = b39 ^ (~b31 & b33);
-      s[48] = b48 ^ (~b40 & b42);
-      s[49] = b49 ^ (~b41 & b43);
-
-      s[0] ^= RC[n];
-      s[1] ^= RC[n + 1];
-    }
-  }
-
-  if (COMMON_JS) {
-    module.exports = methods;
-  } else if (root) {
-    for (var key in methods) {
-      root[key] = methods[key];
-    }
-  }
-}(this));
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(71), __webpack_require__(19)))
-
-/***/ }),
-/* 66 */
+/* 63 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -30716,7 +30024,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 67 */
+/* 64 */
 /***/ (function(module, exports) {
 
 /**
@@ -30735,7 +30043,7 @@ module.exports = function isHexPrefixed(str) {
 
 
 /***/ }),
-/* 68 */
+/* 65 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -30746,7 +30054,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 69 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! jQuery UI - v1.12.1 - 2017-03-19
@@ -49460,11 +48768,489 @@ var effectsEffectTransfer = effect;
 }));
 
 /***/ }),
-/* 70 */
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process, global) {/**
+ * [js-sha3]{@link https://github.com/emn178/js-sha3}
+ *
+ * @version 0.5.5
+ * @author Chen, Yi-Cyuan [emn178@gmail.com]
+ * @copyright Chen, Yi-Cyuan 2015-2016
+ * @license MIT
+ */
+(function (root) {
+  'use strict';
+
+  var NODE_JS = typeof process == 'object' && process.versions && process.versions.node;
+  if (NODE_JS) {
+    root = global;
+  }
+  var COMMON_JS = !root.JS_SHA3_TEST && typeof module == 'object' && module.exports;
+  var HEX_CHARS = '0123456789abcdef'.split('');
+  var SHAKE_PADDING = [31, 7936, 2031616, 520093696];
+  var KECCAK_PADDING = [1, 256, 65536, 16777216];
+  var PADDING = [6, 1536, 393216, 100663296];
+  var SHIFT = [0, 8, 16, 24];
+  var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
+            0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0, 
+            2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771, 
+            2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
+            2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
+  var BITS = [224, 256, 384, 512];
+  var SHAKE_BITS = [128, 256];
+  var OUTPUT_TYPES = ['hex', 'buffer', 'arrayBuffer', 'array'];
+
+  var createOutputMethod = function (bits, padding, outputType) {
+    return function (message) {
+      return new Keccak(bits, padding, bits).update(message)[outputType]();
+    }
+  };
+
+  var createShakeOutputMethod = function (bits, padding, outputType) {
+    return function (message, outputBits) {
+      return new Keccak(bits, padding, outputBits).update(message)[outputType]();
+    }
+  };
+
+  var createMethod = function (bits, padding) {
+    var method = createOutputMethod(bits, padding, 'hex');
+    method.create = function () {
+      return new Keccak(bits, padding, bits);
+    };
+    method.update = function (message) {
+      return method.create().update(message);
+    };
+    for (var i = 0;i < OUTPUT_TYPES.length;++i) {
+      var type = OUTPUT_TYPES[i];
+      method[type] = createOutputMethod(bits, padding, type);
+    }
+    return method;
+  };
+
+  var createShakeMethod = function (bits, padding) {
+    var method = createShakeOutputMethod(bits, padding, 'hex');
+    method.create = function (outputBits) {
+      return new Keccak(bits, padding, outputBits);
+    };
+    method.update = function (message, outputBits) {
+      return method.create(outputBits).update(message);
+    };
+    for (var i = 0;i < OUTPUT_TYPES.length;++i) {
+      var type = OUTPUT_TYPES[i];
+      method[type] = createShakeOutputMethod(bits, padding, type);
+    }
+    return method;
+  };
+
+  var algorithms = [
+    {name: 'keccak', padding: KECCAK_PADDING, bits: BITS, createMethod: createMethod},
+    {name: 'sha3', padding: PADDING, bits: BITS, createMethod: createMethod},
+    {name: 'shake', padding: SHAKE_PADDING, bits: SHAKE_BITS, createMethod: createShakeMethod}
+  ];
+
+  var methods = {};
+
+  for (var i = 0;i < algorithms.length;++i) {
+    var algorithm = algorithms[i];
+    var bits  = algorithm.bits;
+    for (var j = 0;j < bits.length;++j) {
+      methods[algorithm.name +'_' + bits[j]] = algorithm.createMethod(bits[j], algorithm.padding);
+    }
+  }
+
+  function Keccak(bits, padding, outputBits) {
+    this.blocks = [];
+    this.s = [];
+    this.padding = padding;
+    this.outputBits = outputBits;
+    this.reset = true;
+    this.block = 0;
+    this.start = 0;
+    this.blockCount = (1600 - (bits << 1)) >> 5;
+    this.byteCount = this.blockCount << 2;
+    this.outputBlocks = outputBits >> 5;
+    this.extraBytes = (outputBits & 31) >> 3;
+
+    for (var i = 0;i < 50;++i) {
+      this.s[i] = 0;
+    }
+  };
+
+  Keccak.prototype.update = function (message) {
+    var notString = typeof message != 'string';
+    if (notString && message.constructor == root.ArrayBuffer) {
+      message = new Uint8Array(message);
+    }
+    var length = message.length, blocks = this.blocks, byteCount = this.byteCount, 
+        blockCount = this.blockCount, index = 0, s = this.s, i, code;
+    
+    while (index < length) {
+      if (this.reset) {
+        this.reset = false;
+        blocks[0] = this.block;
+        for (i = 1;i < blockCount + 1;++i) {
+          blocks[i] = 0;
+        }
+      }
+      if (notString) {
+        for (i = this.start;index < length && i < byteCount;++index) {
+          blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
+        }
+      } else {
+        for (i = this.start;index < length && i < byteCount;++index) {
+          code = message.charCodeAt(index);
+          if (code < 0x80) {
+            blocks[i >> 2] |= code << SHIFT[i++ & 3];
+          } else if (code < 0x800) {
+            blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+          } else if (code < 0xd800 || code >= 0xe000) {
+            blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+          } else {
+            code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
+            blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+          }
+        }
+      }
+      this.lastByteIndex = i;
+      if (i >= byteCount) {
+        this.start = i - byteCount;
+        this.block = blocks[blockCount];
+        for (i = 0;i < blockCount;++i) {
+          s[i] ^= blocks[i];
+        }
+        f(s);
+        this.reset = true;
+      } else {
+        this.start = i;
+      }
+    }
+    return this;
+  };
+
+  Keccak.prototype.finalize = function () {
+    var blocks = this.blocks, i = this.lastByteIndex, blockCount = this.blockCount, s = this.s;
+    blocks[i >> 2] |= this.padding[i & 3];
+    if (this.lastByteIndex == this.byteCount) {
+      blocks[0] = blocks[blockCount];
+      for (i = 1;i < blockCount + 1;++i) {
+        blocks[i] = 0;
+      }
+    }
+    blocks[blockCount - 1] |= 0x80000000;
+    for (i = 0;i < blockCount;++i) {
+      s[i] ^= blocks[i];
+    }
+    f(s);
+  };
+
+  Keccak.prototype.toString = Keccak.prototype.hex = function () {
+    this.finalize();
+
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+        extraBytes = this.extraBytes, i = 0, j = 0;
+    var hex = '', block;
+    while (j < outputBlocks) {
+      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
+        block = s[i];
+        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F] +
+               HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F] +
+               HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F] +
+               HEX_CHARS[(block >> 28) & 0x0F] + HEX_CHARS[(block >> 24) & 0x0F];
+      }
+      if (j % blockCount == 0) {
+        f(s);
+        i = 0;
+      }
+    }
+    if (extraBytes) {
+      block = s[i];
+      if (extraBytes > 0) {
+        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F];
+      }
+      if (extraBytes > 1) {
+        hex += HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F];
+      }
+      if (extraBytes > 2) {
+        hex += HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F];
+      }
+    }
+    return hex;
+  };
+
+  Keccak.prototype.arrayBuffer = function () {
+    this.finalize();
+
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+        extraBytes = this.extraBytes, i = 0, j = 0;
+    var bytes = this.outputBits >> 3;
+    var buffer;
+    if (extraBytes) {
+      buffer = new ArrayBuffer((outputBlocks + 1) << 2);
+    } else {
+      buffer = new ArrayBuffer(bytes);
+    }
+    var array = new Uint32Array(buffer);
+    while (j < outputBlocks) {
+      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
+        array[j] = s[i];
+      }
+      if (j % blockCount == 0) {
+        f(s);
+      }
+    }
+    if (extraBytes) {
+      array[i] = s[i];
+      buffer = buffer.slice(0, bytes);
+    }
+    return buffer;
+  };
+
+  Keccak.prototype.buffer = Keccak.prototype.arrayBuffer;
+
+  Keccak.prototype.digest = Keccak.prototype.array = function () {
+    this.finalize();
+
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+        extraBytes = this.extraBytes, i = 0, j = 0;
+    var array = [], offset, block;
+    while (j < outputBlocks) {
+      for (i = 0;i < blockCount && j < outputBlocks;++i, ++j) {
+        offset = j << 2;
+        block = s[i];
+        array[offset] = block & 0xFF;
+        array[offset + 1] = (block >> 8) & 0xFF;
+        array[offset + 2] = (block >> 16) & 0xFF;
+        array[offset + 3] = (block >> 24) & 0xFF;
+      }
+      if (j % blockCount == 0) {
+        f(s);
+      }
+    }
+    if (extraBytes) {
+      offset = j << 2;
+      block = s[i];
+      if (extraBytes > 0) {
+        array[offset] = block & 0xFF;
+      }
+      if (extraBytes > 1) {
+        array[offset + 1] = (block >> 8) & 0xFF;
+      }
+      if (extraBytes > 2) {
+        array[offset + 2] = (block >> 16) & 0xFF;
+      }
+    }
+    return array;
+  };
+
+  var f = function (s) {
+    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, 
+        b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, 
+        b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33, 
+        b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
+    for (n = 0;n < 48;n += 2) {
+      c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];
+      c1 = s[1] ^ s[11] ^ s[21] ^ s[31] ^ s[41];
+      c2 = s[2] ^ s[12] ^ s[22] ^ s[32] ^ s[42];
+      c3 = s[3] ^ s[13] ^ s[23] ^ s[33] ^ s[43];
+      c4 = s[4] ^ s[14] ^ s[24] ^ s[34] ^ s[44];
+      c5 = s[5] ^ s[15] ^ s[25] ^ s[35] ^ s[45];
+      c6 = s[6] ^ s[16] ^ s[26] ^ s[36] ^ s[46];
+      c7 = s[7] ^ s[17] ^ s[27] ^ s[37] ^ s[47];
+      c8 = s[8] ^ s[18] ^ s[28] ^ s[38] ^ s[48];
+      c9 = s[9] ^ s[19] ^ s[29] ^ s[39] ^ s[49];
+
+      h = c8 ^ ((c2 << 1) | (c3 >>> 31));
+      l = c9 ^ ((c3 << 1) | (c2 >>> 31));
+      s[0] ^= h;
+      s[1] ^= l;
+      s[10] ^= h;
+      s[11] ^= l;
+      s[20] ^= h;
+      s[21] ^= l;
+      s[30] ^= h;
+      s[31] ^= l;
+      s[40] ^= h;
+      s[41] ^= l;
+      h = c0 ^ ((c4 << 1) | (c5 >>> 31));
+      l = c1 ^ ((c5 << 1) | (c4 >>> 31));
+      s[2] ^= h;
+      s[3] ^= l;
+      s[12] ^= h;
+      s[13] ^= l;
+      s[22] ^= h;
+      s[23] ^= l;
+      s[32] ^= h;
+      s[33] ^= l;
+      s[42] ^= h;
+      s[43] ^= l;
+      h = c2 ^ ((c6 << 1) | (c7 >>> 31));
+      l = c3 ^ ((c7 << 1) | (c6 >>> 31));
+      s[4] ^= h;
+      s[5] ^= l;
+      s[14] ^= h;
+      s[15] ^= l;
+      s[24] ^= h;
+      s[25] ^= l;
+      s[34] ^= h;
+      s[35] ^= l;
+      s[44] ^= h;
+      s[45] ^= l;
+      h = c4 ^ ((c8 << 1) | (c9 >>> 31));
+      l = c5 ^ ((c9 << 1) | (c8 >>> 31));
+      s[6] ^= h;
+      s[7] ^= l;
+      s[16] ^= h;
+      s[17] ^= l;
+      s[26] ^= h;
+      s[27] ^= l;
+      s[36] ^= h;
+      s[37] ^= l;
+      s[46] ^= h;
+      s[47] ^= l;
+      h = c6 ^ ((c0 << 1) | (c1 >>> 31));
+      l = c7 ^ ((c1 << 1) | (c0 >>> 31));
+      s[8] ^= h;
+      s[9] ^= l;
+      s[18] ^= h;
+      s[19] ^= l;
+      s[28] ^= h;
+      s[29] ^= l;
+      s[38] ^= h;
+      s[39] ^= l;
+      s[48] ^= h;
+      s[49] ^= l;
+
+      b0 = s[0];
+      b1 = s[1];
+      b32 = (s[11] << 4) | (s[10] >>> 28);
+      b33 = (s[10] << 4) | (s[11] >>> 28);
+      b14 = (s[20] << 3) | (s[21] >>> 29);
+      b15 = (s[21] << 3) | (s[20] >>> 29);
+      b46 = (s[31] << 9) | (s[30] >>> 23);
+      b47 = (s[30] << 9) | (s[31] >>> 23);
+      b28 = (s[40] << 18) | (s[41] >>> 14);
+      b29 = (s[41] << 18) | (s[40] >>> 14);
+      b20 = (s[2] << 1) | (s[3] >>> 31);
+      b21 = (s[3] << 1) | (s[2] >>> 31);
+      b2 = (s[13] << 12) | (s[12] >>> 20);
+      b3 = (s[12] << 12) | (s[13] >>> 20);
+      b34 = (s[22] << 10) | (s[23] >>> 22);
+      b35 = (s[23] << 10) | (s[22] >>> 22);
+      b16 = (s[33] << 13) | (s[32] >>> 19);
+      b17 = (s[32] << 13) | (s[33] >>> 19);
+      b48 = (s[42] << 2) | (s[43] >>> 30);
+      b49 = (s[43] << 2) | (s[42] >>> 30);
+      b40 = (s[5] << 30) | (s[4] >>> 2);
+      b41 = (s[4] << 30) | (s[5] >>> 2);
+      b22 = (s[14] << 6) | (s[15] >>> 26);
+      b23 = (s[15] << 6) | (s[14] >>> 26);
+      b4 = (s[25] << 11) | (s[24] >>> 21);
+      b5 = (s[24] << 11) | (s[25] >>> 21);
+      b36 = (s[34] << 15) | (s[35] >>> 17);
+      b37 = (s[35] << 15) | (s[34] >>> 17);
+      b18 = (s[45] << 29) | (s[44] >>> 3);
+      b19 = (s[44] << 29) | (s[45] >>> 3);
+      b10 = (s[6] << 28) | (s[7] >>> 4);
+      b11 = (s[7] << 28) | (s[6] >>> 4);
+      b42 = (s[17] << 23) | (s[16] >>> 9);
+      b43 = (s[16] << 23) | (s[17] >>> 9);
+      b24 = (s[26] << 25) | (s[27] >>> 7);
+      b25 = (s[27] << 25) | (s[26] >>> 7);
+      b6 = (s[36] << 21) | (s[37] >>> 11);
+      b7 = (s[37] << 21) | (s[36] >>> 11);
+      b38 = (s[47] << 24) | (s[46] >>> 8);
+      b39 = (s[46] << 24) | (s[47] >>> 8);
+      b30 = (s[8] << 27) | (s[9] >>> 5);
+      b31 = (s[9] << 27) | (s[8] >>> 5);
+      b12 = (s[18] << 20) | (s[19] >>> 12);
+      b13 = (s[19] << 20) | (s[18] >>> 12);
+      b44 = (s[29] << 7) | (s[28] >>> 25);
+      b45 = (s[28] << 7) | (s[29] >>> 25);
+      b26 = (s[38] << 8) | (s[39] >>> 24);
+      b27 = (s[39] << 8) | (s[38] >>> 24);
+      b8 = (s[48] << 14) | (s[49] >>> 18);
+      b9 = (s[49] << 14) | (s[48] >>> 18);
+
+      s[0] = b0 ^ (~b2 & b4);
+      s[1] = b1 ^ (~b3 & b5);
+      s[10] = b10 ^ (~b12 & b14);
+      s[11] = b11 ^ (~b13 & b15);
+      s[20] = b20 ^ (~b22 & b24);
+      s[21] = b21 ^ (~b23 & b25);
+      s[30] = b30 ^ (~b32 & b34);
+      s[31] = b31 ^ (~b33 & b35);
+      s[40] = b40 ^ (~b42 & b44);
+      s[41] = b41 ^ (~b43 & b45);
+      s[2] = b2 ^ (~b4 & b6);
+      s[3] = b3 ^ (~b5 & b7);
+      s[12] = b12 ^ (~b14 & b16);
+      s[13] = b13 ^ (~b15 & b17);
+      s[22] = b22 ^ (~b24 & b26);
+      s[23] = b23 ^ (~b25 & b27);
+      s[32] = b32 ^ (~b34 & b36);
+      s[33] = b33 ^ (~b35 & b37);
+      s[42] = b42 ^ (~b44 & b46);
+      s[43] = b43 ^ (~b45 & b47);
+      s[4] = b4 ^ (~b6 & b8);
+      s[5] = b5 ^ (~b7 & b9);
+      s[14] = b14 ^ (~b16 & b18);
+      s[15] = b15 ^ (~b17 & b19);
+      s[24] = b24 ^ (~b26 & b28);
+      s[25] = b25 ^ (~b27 & b29);
+      s[34] = b34 ^ (~b36 & b38);
+      s[35] = b35 ^ (~b37 & b39);
+      s[44] = b44 ^ (~b46 & b48);
+      s[45] = b45 ^ (~b47 & b49);
+      s[6] = b6 ^ (~b8 & b0);
+      s[7] = b7 ^ (~b9 & b1);
+      s[16] = b16 ^ (~b18 & b10);
+      s[17] = b17 ^ (~b19 & b11);
+      s[26] = b26 ^ (~b28 & b20);
+      s[27] = b27 ^ (~b29 & b21);
+      s[36] = b36 ^ (~b38 & b30);
+      s[37] = b37 ^ (~b39 & b31);
+      s[46] = b46 ^ (~b48 & b40);
+      s[47] = b47 ^ (~b49 & b41);
+      s[8] = b8 ^ (~b0 & b2);
+      s[9] = b9 ^ (~b1 & b3);
+      s[18] = b18 ^ (~b10 & b12);
+      s[19] = b19 ^ (~b11 & b13);
+      s[28] = b28 ^ (~b20 & b22);
+      s[29] = b29 ^ (~b21 & b23);
+      s[38] = b38 ^ (~b30 & b32);
+      s[39] = b39 ^ (~b31 & b33);
+      s[48] = b48 ^ (~b40 & b42);
+      s[49] = b49 ^ (~b41 & b43);
+
+      s[0] ^= RC[n];
+      s[1] ^= RC[n + 1];
+    }
+  }
+
+  if (COMMON_JS) {
+    module.exports = methods;
+  } else if (root) {
+    for (var key in methods) {
+      root[key] = methods[key];
+    }
+  }
+}(this));
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(69), __webpack_require__(19)))
+
+/***/ }),
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BN = __webpack_require__(27);
-var stripHexPrefix = __webpack_require__(72);
+var stripHexPrefix = __webpack_require__(70);
 
 /**
  * Returns a BN object, converts a number value to a BN
@@ -49504,7 +49290,7 @@ module.exports = function numberToBN(arg) {
 
 
 /***/ }),
-/* 71 */
+/* 69 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -49694,10 +49480,10 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 72 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isHexPrefixed = __webpack_require__(67);
+var isHexPrefixed = __webpack_require__(64);
 
 /**
  * Removes '0x' from a given `String` is present
@@ -49714,7 +49500,7 @@ module.exports = function stripHexPrefix(str) {
 
 
 /***/ }),
-/* 73 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // TODO: remove web3 requirement
@@ -49781,11 +49567,11 @@ module.exports = Blockchain;
 
 
 /***/ }),
-/* 74 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var sha3 = __webpack_require__(75);
-var schema_version = __webpack_require__(77).version;
+var sha3 = __webpack_require__(73);
+var schema_version = __webpack_require__(75).version;
 
 var TruffleSchema = {
   // Normalize options passed in to be the exact options required
@@ -49968,13 +49754,13 @@ module.exports = TruffleSchema;
 
 
 /***/ }),
-/* 75 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
 	if (true) {
 		// CommonJS
-		module.exports = exports = factory(__webpack_require__(32), __webpack_require__(76));
+		module.exports = exports = factory(__webpack_require__(32), __webpack_require__(74));
 	}
 	else if (typeof define === "function" && define.amd) {
 		// AMD
@@ -50296,7 +50082,7 @@ module.exports = TruffleSchema;
 }));
 
 /***/ }),
-/* 76 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -50605,7 +50391,7 @@ module.exports = TruffleSchema;
 }));
 
 /***/ }),
-/* 77 */
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -50705,11 +50491,11 @@ module.exports = {
 };
 
 /***/ }),
-/* 78 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global, module) {var ethJSABI = __webpack_require__(63);
-var BlockchainUtils = __webpack_require__(73);
+/* WEBPACK VAR INJECTION */(function(global, module) {var ethJSABI = __webpack_require__(61);
+var BlockchainUtils = __webpack_require__(71);
 var Web3 = __webpack_require__(23);
 
 // For browserified version. If browserify gave us an empty version,
@@ -51507,7 +51293,77 @@ var contract = (function(module) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19), __webpack_require__(25)(module)))
 
 /***/ }),
-/* 79 */
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Schema = __webpack_require__(72);
+var Contract = __webpack_require__(76);
+
+var contract = function(options) {
+  options = Schema.normalizeOptions(options);
+  var binary = Schema.generateBinary(options, {}, {dirty: false});
+
+  // Note we don't use `new` here at all. This will cause the class to
+  // "mutate" instead of instantiate an instance.
+  return Contract.clone(binary);
+};
+
+// To be used to upgrade old .sol.js abstractions
+contract.fromSolJS = function(soljs_abstraction, ignore_default_network) {
+  if (ignore_default_network == null) {
+    ignore_default_network = false;
+  }
+
+  // Find the latest binary
+  var latest_network = null;
+  var latest_network_updated_at = 0;
+
+  var networks = {};
+
+  Object.keys(soljs_abstraction.all_networks).forEach(function(network_name) {
+
+    if (network_name == "default") {
+      if (ignore_default_network == true ) {
+        return;
+      } else {
+        throw new Error(soljs_abstraction.contract_name + " has legacy 'default' network artifacts stored within it. Generally these artifacts were a result of running Truffle on a development environment -- in order to store contracts with truffle-contract, all networks must have an identified id. If you're sure this default network represents your development environment, you can ignore processing of the default network by passing `true` as the second argument to this function. However, if you think this network represents artifacts you'd like to keep (i.e., addresses deployed to the main network), you'll need to edit your .sol.js file yourself and change the default network id to be the id of your desired network. For most people, ignoring the default network is the correct option.");
+      }
+    }
+
+    if (soljs_abstraction.all_networks[network_name].updated_at > latest_network_updated_at) {
+      latest_network = network_name;
+      latest_network_updated_at = soljs_abstraction.all_networks[network_name].updated_at;
+    }
+
+    networks[network_name] = {};
+
+    ["address", "events", "links", "updated_at"].forEach(function(key) {
+      networks[network_name][key] = soljs_abstraction.all_networks[network_name][key];
+    })
+  });
+
+  latest_network = soljs_abstraction.all_networks[latest_network] || {};
+
+  var json = {
+    contract_name: soljs_abstraction.contract_name,
+    unlinked_binary: latest_network.unlinked_binary,
+    abi: latest_network.abi,
+    networks: networks,
+    updated_at: latest_network_updated_at == 0 ? undefined : latest_network_updated_at
+  };
+
+  return contract(json);
+};
+
+module.exports = contract;
+
+if (typeof window !== "undefined") {
+  window.TruffleContract = contract;
+}
+
+
+/***/ }),
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -51757,7 +51613,7 @@ var contract = (function(module) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)(module), __webpack_require__(19)))
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ (function(module, exports) {
 
 module.exports = [
@@ -52016,7 +51872,7 @@ module.exports = [
 ];
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ (function(module, exports) {
 
 module.exports = [
@@ -52129,7 +51985,7 @@ module.exports = [
 ];
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ (function(module, exports) {
 
 module.exports = [
@@ -52281,7 +52137,7 @@ module.exports = [
 ];
 
 /***/ }),
-/* 83 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52313,7 +52169,7 @@ module.exports = SolidityTypeAddress;
 
 
 /***/ }),
-/* 84 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52345,7 +52201,7 @@ module.exports = SolidityTypeBool;
 
 
 /***/ }),
-/* 85 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52380,7 +52236,7 @@ module.exports = SolidityTypeBytes;
 
 
 /***/ }),
-/* 86 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52406,7 +52262,7 @@ module.exports = SolidityTypeDynamicBytes;
 
 
 /***/ }),
-/* 87 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52444,7 +52300,7 @@ module.exports = SolidityTypeInt;
 
 
 /***/ }),
-/* 88 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52482,7 +52338,7 @@ module.exports = SolidityTypeReal;
 
 
 /***/ }),
-/* 89 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52508,7 +52364,7 @@ module.exports = SolidityTypeString;
 
 
 /***/ }),
-/* 90 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52546,7 +52402,7 @@ module.exports = SolidityTypeUInt;
 
 
 /***/ }),
-/* 91 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(3);
@@ -52584,7 +52440,7 @@ module.exports = SolidityTypeUReal;
 
 
 /***/ }),
-/* 92 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52600,7 +52456,7 @@ if (typeof XMLHttpRequest === 'undefined') {
 
 
 /***/ }),
-/* 93 */
+/* 92 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -52608,7 +52464,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 94 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52638,23 +52494,23 @@ module.exports = {
  * @date 2014
  */
 
-var RequestManager = __webpack_require__(109);
+var RequestManager = __webpack_require__(108);
 var Iban = __webpack_require__(17);
-var Eth = __webpack_require__(103);
-var DB = __webpack_require__(102);
-var Shh = __webpack_require__(106);
-var Net = __webpack_require__(104);
-var Personal = __webpack_require__(105);
-var Swarm = __webpack_require__(107);
-var Settings = __webpack_require__(110);
-var version = __webpack_require__(93);
+var Eth = __webpack_require__(102);
+var DB = __webpack_require__(101);
+var Shh = __webpack_require__(105);
+var Net = __webpack_require__(103);
+var Personal = __webpack_require__(104);
+var Swarm = __webpack_require__(106);
+var Settings = __webpack_require__(109);
+var version = __webpack_require__(92);
 var utils = __webpack_require__(2);
 var sha3 = __webpack_require__(12);
-var extend = __webpack_require__(98);
-var Batch = __webpack_require__(96);
+var extend = __webpack_require__(97);
+var Batch = __webpack_require__(95);
 var Property = __webpack_require__(10);
-var HttpProvider = __webpack_require__(100);
-var IpcProvider = __webpack_require__(101);
+var HttpProvider = __webpack_require__(99);
+var IpcProvider = __webpack_require__(100);
 var BigNumber = __webpack_require__(11);
 
 
@@ -52764,7 +52620,7 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 95 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52790,7 +52646,7 @@ module.exports = Web3;
  */
 
 var sha3 = __webpack_require__(12);
-var SolidityEvent = __webpack_require__(35);
+var SolidityEvent = __webpack_require__(34);
 var formatters = __webpack_require__(5);
 var utils = __webpack_require__(2);
 var Filter = __webpack_require__(16);
@@ -52858,7 +52714,7 @@ module.exports = AllSolidityEvents;
 
 
 /***/ }),
-/* 96 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52883,7 +52739,7 @@ module.exports = AllSolidityEvents;
  * @date 2015
  */
 
-var Jsonrpc = __webpack_require__(36);
+var Jsonrpc = __webpack_require__(35);
 var errors = __webpack_require__(13);
 
 var Batch = function (web3) {
@@ -52930,7 +52786,7 @@ module.exports = Batch;
 
 
 /***/ }),
-/* 97 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52957,9 +52813,9 @@ module.exports = Batch;
 
 var utils = __webpack_require__(2);
 var coder = __webpack_require__(24);
-var SolidityEvent = __webpack_require__(35);
-var SolidityFunction = __webpack_require__(99);
-var AllEvents = __webpack_require__(95);
+var SolidityEvent = __webpack_require__(34);
+var SolidityFunction = __webpack_require__(98);
+var AllEvents = __webpack_require__(94);
 
 /**
  * Should be called to encode constructor params
@@ -53246,7 +53102,7 @@ module.exports = ContractFactory;
 
 
 /***/ }),
-/* 98 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var formatters = __webpack_require__(5);
@@ -53300,7 +53156,7 @@ module.exports = extend;
 
 
 /***/ }),
-/* 99 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -53568,7 +53424,7 @@ module.exports = SolidityFunction;
 
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -53605,10 +53461,10 @@ if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     XMLHttpRequest = window.XMLHttpRequest; // jshint ignore: line
 // node
 } else {
-    XMLHttpRequest = __webpack_require__(92).XMLHttpRequest; // jshint ignore: line
+    XMLHttpRequest = __webpack_require__(91).XMLHttpRequest; // jshint ignore: line
 }
 
-var XHR2 = __webpack_require__(113); // jshint ignore: line
+var XHR2 = __webpack_require__(112); // jshint ignore: line
 
 /**
  * HttpProvider should be used to send rpc calls over http
@@ -53727,7 +53583,7 @@ module.exports = HttpProvider;
 
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -53941,7 +53797,7 @@ module.exports = IpcProvider;
 
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -54013,7 +53869,7 @@ module.exports = DB;
 
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54047,13 +53903,13 @@ var utils = __webpack_require__(2);
 var Method = __webpack_require__(6);
 var Property = __webpack_require__(10);
 var c = __webpack_require__(15);
-var Contract = __webpack_require__(97);
+var Contract = __webpack_require__(96);
 var watches = __webpack_require__(18);
 var Filter = __webpack_require__(16);
-var IsSyncing = __webpack_require__(111);
-var namereg = __webpack_require__(108);
+var IsSyncing = __webpack_require__(110);
+var namereg = __webpack_require__(107);
 var Iban = __webpack_require__(17);
-var transfer = __webpack_require__(112);
+var transfer = __webpack_require__(111);
 
 var blockCall = function (args) {
     return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "eth_getBlockByHash" : "eth_getBlockByNumber";
@@ -54374,7 +54230,7 @@ module.exports = Eth;
 
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -54432,7 +54288,7 @@ module.exports = Net;
 
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54532,7 +54388,7 @@ module.exports = Personal;
 
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -54624,7 +54480,7 @@ module.exports = Shh;
 
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54776,7 +54632,7 @@ module.exports = Swarm;
 
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -54801,8 +54657,8 @@ module.exports = Swarm;
  * @date 2015
  */
 
-var globalRegistrarAbi = __webpack_require__(80);
-var icapRegistrarAbi= __webpack_require__(81);
+var globalRegistrarAbi = __webpack_require__(79);
+var icapRegistrarAbi= __webpack_require__(80);
 
 var globalNameregAddress = '0xc6d9d2cd449a754c494264e1809c50e34d64562b';
 var icapNameregAddress = '0xa1a111bc074c9cfa781f0c38e63bd51c91b8af00';
@@ -54821,7 +54677,7 @@ module.exports = {
 
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -54850,7 +54706,7 @@ module.exports = {
  * @date 2014
  */
 
-var Jsonrpc = __webpack_require__(36);
+var Jsonrpc = __webpack_require__(35);
 var utils = __webpack_require__(2);
 var c = __webpack_require__(15);
 var errors = __webpack_require__(13);
@@ -55092,7 +54948,7 @@ module.exports = RequestManager;
 
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ (function(module, exports) {
 
 
@@ -55107,7 +54963,7 @@ module.exports = Settings;
 
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -55206,7 +55062,7 @@ module.exports = IsSyncing;
 
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -55232,7 +55088,7 @@ module.exports = IsSyncing;
  */
 
 var Iban = __webpack_require__(17);
-var exchangeAbi = __webpack_require__(82);
+var exchangeAbi = __webpack_require__(81);
 
 /**
  * Should be used to make Iban transfer
@@ -55304,67 +55160,194 @@ module.exports = transfer;
 
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ (function(module, exports) {
 
 module.exports = XMLHttpRequest;
 
 
 /***/ }),
+/* 113 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	"contract_name": "SolarUnit",
+	"abi": [
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "addr",
+					"type": "address"
+				}
+			],
+			"name": "getBalanceInEth",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "receiver",
+					"type": "address"
+				},
+				{
+					"name": "amount",
+					"type": "uint256"
+				}
+			],
+			"name": "sendUnit",
+			"outputs": [
+				{
+					"name": "sufficient",
+					"type": "bool"
+				}
+			],
+			"payable": false,
+			"type": "function"
+		},
+		{
+			"constant": false,
+			"inputs": [
+				{
+					"name": "addr",
+					"type": "address"
+				}
+			],
+			"name": "getBalance",
+			"outputs": [
+				{
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"payable": false,
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"payable": false,
+			"type": "constructor"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"name": "_from",
+					"type": "address"
+				},
+				{
+					"indexed": true,
+					"name": "_to",
+					"type": "address"
+				},
+				{
+					"indexed": false,
+					"name": "_value",
+					"type": "uint256"
+				}
+			],
+			"name": "Transfer",
+			"type": "event"
+		}
+	],
+	"unlinked_binary": "0x606060405234610000575b600160a060020a033216600090815260208190526040902061271090555b5b610223806100386000396000f300606060405263ffffffff60e060020a6000350416637bd703e8811461003a578063e234449614610065578063f8b2cb4f14610095575b610000565b3461000057610053600160a060020a03600435166100c0565b60408051918252519081900360200190f35b3461000057610081600160a060020a0360043516602435610140565b604080519115158252519081900360200190f35b3461000057610053600160a060020a03600435166101d8565b60408051918252519081900360200190f35b600073__ConvertLib____________________________6396e4ee3d6100e5846101d8565b60026000604051602001526040518363ffffffff1660e060020a028152600401808381526020018281526020019250505060206040518083038186803b156100005760325a03f415610000575050604051519150505b919050565b600160a060020a03331660009081526020819052604081205482901015610169575060006101d2565b600160a060020a0333811660008181526020818152604080832080548890039055938716808352918490208054870190558351868152935191937fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef929081900390910190a35060015b92915050565b600160a060020a0381166000908152602081905260409020545b9190505600a165627a7a72305820dd241243c0b2847f03db00d9da326a87d6ee4fe052a0b7cec268080f38f459ef0029",
+	"networks": {
+		"9999": {
+			"events": {
+				"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+					"anonymous": false,
+					"inputs": [
+						{
+							"indexed": true,
+							"name": "_from",
+							"type": "address"
+						},
+						{
+							"indexed": true,
+							"name": "_to",
+							"type": "address"
+						},
+						{
+							"indexed": false,
+							"name": "_value",
+							"type": "uint256"
+						}
+					],
+					"name": "Transfer",
+					"type": "event"
+				}
+			},
+			"links": {
+				"ConvertLib": "0x9d7634b3e4b949d835dbfcc037cd81135d8772a2"
+			},
+			"address": "0x57dd9d119232d5aa943bb281a6ec16d70f98cc46",
+			"updated_at": 1495490924577
+		}
+	},
+	"schema_version": "0.0.5",
+	"updated_at": 1495490924577
+};
+
+/***/ }),
 /* 114 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__web3_enabled__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__web3_configurer__ = __webpack_require__(26);
 
 
-const contract = __webpack_require__(33);
-
-const json = __webpack_require__(37);
-
-const SolarUnit = contract(json);
-
-class LocalNode extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* default */] {
+class LocalNode {
   constructor() {
-    super();
-    SolarUnit.setProvider(this.web3.currentProvider);
-    SolarUnit.deployed().then((instance) => { this.solarCoinContract = instance; });
+    this.web3 = __WEBPACK_IMPORTED_MODULE_0__web3_configurer__["a" /* default */].getInstance();
   }
 
-  getPrimaryAccount() {
-    const accounts = this.web3.personal.listAccounts;
-    return accounts && accounts[0];
+  getPrimaryAccount(next) {
+    console.info('Fetching primary account');
+
+    this.web3.personal.getListAccounts((err, accounts) => {
+      console.info('Fetching personal account. Received results', err, accounts);
+      next((accounts && accounts[0]) || '0x0');
+    });
   }
 
-  getBalance() {
-    const primaryAccount = this.getPrimaryAccount();
-
-    if (!primaryAccount) {
+  getBalance(account, callback) {
+    if (!account) {
       console.warn('Unable to get balance. No primary account exists');
-      return null;
+      callback();
     }
 
-    const balanceWei = this.web3.eth.getBalance(primaryAccount).toNumber();
-    const balance = this.web3.fromWei(balanceWei, 'ether');
+    this.web3.eth.getBalance(account, (err, balance) => {
+      if (err) { console.error(err); callback(); }
 
-    return balance;
+      console.info('Fetching balance. Received results', err, balance);
+      const balanceWei = balance.toNumber();
+
+    // fromWei causing safari to crash
+    //  const etherBalance = this.web3.fromWei(balanceWei, 'ether');
+      const etherBalance = balanceWei / 1e18;
+      callback(err, etherBalance);
+    });
   }
 
-  getFormattedBalance() {
-    const balance = this.getBalance();
-    return balance ? Number(balance).toLocaleString() : 0;
+  getFormattedBalance(account, callback) {
+    this.getBalance(account, (err, balance) => {
+      callback(balance ? Number(balance).toLocaleString() : 0);
+    });
   }
 
-  getSolarUnitBalance() {
-    const account = this.getPrimaryAccount();
-    if (!this.solarCoinContract) {
-      console.warn('No solar coin contract found');
-      return 0;
-    }
-
-    console.info('This is the solar coin contract', this.solarCoinContract);
-
-    return this.solarCoinContract.getBalance.call(account);
+  getBlockNumber(callback) {
+    this.web3.eth.getBlockNumber((err, result) => {
+      callback(result || '0');
+    });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = LocalNode;
@@ -55376,19 +55359,19 @@ class LocalNode extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* defau
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__web3_enabled__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__web3_configurer__ = __webpack_require__(26);
 
 
-const contract = __webpack_require__(33);
+const contract = __webpack_require__(77);
 
-const json = __webpack_require__(37);
+const json = __webpack_require__(113);
 
 const SolarUnitContract = contract(json);
 
-class SolarUnitService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /* default */] {
+class SolarUnitService {
 
   constructor() {
-    super();
+    this.web3 = __WEBPACK_IMPORTED_MODULE_0__web3_configurer__["a" /* default */].getInstance();
     SolarUnitContract.setProvider(this.web3.currentProvider);
     SolarUnitContract.deployed().then((instance) => { this.solarCoinContract = instance; });
   }
@@ -55396,8 +55379,9 @@ class SolarUnitService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /
   getBalance(account) {
     if (!this.solarCoinContract) {
       console.warn('No solar coin contract found');
-      return 0;
     }
+
+//    window.solarCoinContract = this.solarCoinContract;
 
     console.info('This is the solar coin contract', this.solarCoinContract);
 
@@ -55420,8 +55404,8 @@ class SolarUnitService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /
       return;
     }
 
-    console.log('calling send coins with', this.solarCoinContract.sendCoin, arguments);
-    return this.solarCoinContract.sendCoin(receiver, amount, { from });
+    console.log('calling send coins with', this.solarCoinContract.sendUnit, arguments);
+    return this.solarCoinContract.sendUnit(receiver, amount, { from });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = SolarUnitService;
@@ -55432,7 +55416,7 @@ class SolarUnitService extends __WEBPACK_IMPORTED_MODULE_0__web3_enabled__["a" /
 /* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(38);
+module.exports = __webpack_require__(36);
 
 
 /***/ })

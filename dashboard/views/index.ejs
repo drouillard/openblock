@@ -16,25 +16,46 @@
             <div class="row placeholders">
               <div class="col-xs-6 col-sm-3 placeholder">
                 <h4>ETH</h4>
-                <span class="text-muted" id="label1"></span>
+                <span class="text-muted" id="balance"></span>
               </div>
               <div class="col-xs-6 col-sm-3 placeholder">
                 <h4>Block</h4>
-                <span class="text-muted" id="label2"></span>
+                <span class="text-muted" id="block_number"></span>
               </div>
               <div class="col-xs-6 col-sm-3 placeholder">
                 <h4>Solar Units (kwh)</h4>
-                <span class="text-muted" id="label3"></span>
+                <span class="text-muted" id="solar_balance"></span>
               </div>
               <!--div class="col-xs-6 col-sm-3 placeholder">
-                <h4>Energy</h4>
-                <span class="text-muted" id="label4"></span>
-              </div>
-            </div-->
-          </div>
+              <h4>Energy</h4>
+              <span class="text-muted" id="label4"></span>
+            </div>
+          </div-->
         </div>
       </div>
+
     </div>
+    <div>
+      <strong>Address: </strong><span id="address"> </span>
+      <strong>Last update: </strong><span id="date"> </span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div style="margin: 10px 0px; max-width: 400px;"id="message"></div>
+    <div>
+      <h2 class="sub-header">Operations</h2>
+      <form class="form-inline" role="form" id="send_coins_form">
+        <div class="form-group">
+          <label for="send">Send Units:</label>
+          <input name='send_coins_address' type="text" class="form-control" id="send_coins_address" placeholder="Address">
+          <input name='send_coins_amount' type="number" class="form-control" id="send_coins_amount" placeholder="Amount" value='10'>
+        </div>
+        <button id='send_coins_button' type="submit" class="btn btn-primary">Send</button>
+      </form>
+      <a href="#" onClick='$("#send_coins_address").val("0xca5afe04ff456d5f1fbea9b6fd6ab40b40760585"); return false;'>Insert valid address</a>
+    </div>
+  </div>
 
   <!-- script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script -->
   <script src="/javascripts/jquery.min.js"></script>

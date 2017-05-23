@@ -46,6 +46,26 @@ function copyApp(host, username, callback) {
   }, callback);
 }
 
+function removeDashboardDirectory(host, user, callback) {
+  const ssh = new SSH({
+    host,
+    user,
+    pass: password,
+  });
+
+  ssh
+  .exec(`rm -rf ${dashboardDir}`, {
+    out: console.log.bind(console),
+  })
+  .exec('echo "Removed existing dashboard directory"', {
+    out: console.log.bind(console),
+    exit() {
+      callback();
+    },
+  })
+  .start();
+}
+
 function installDeps(host, user, callback) {
   console.log('Installing pm2. (May take a few minutes)');
 
@@ -75,6 +95,7 @@ const defaultCallback = () => {};
 function deploy(host, username, callback) {
   async.series([
     copySshKey.bind(null, host, username),
+    removeDashboardDirectory.bind(null, host, username),
     copyApp.bind(null, host, username),
     installDeps.bind(null, host, username),
     callback || defaultCallback, // Prevent error if no callback provided

@@ -14,52 +14,71 @@ window.web3 = web3;
 
 // Setup filter to watch transactions
 
-const filter = web3.eth.filter('latest');
-
-filter.watch((error, result) => {
-  if (error) return;
-
-  const block = web3.eth.getBlock(result, true);
-  console.log(`block #${block.number}`, block);
-
-  console.dir('transaction in block', block.transactions);
-});
+// const filter = web3.eth.filter('latest');
+//
+// filter.watch((error, result) => {
+//   if (error) return;
+//
+//   const block = web3.eth.getBlock(result, true);
+//   console.log(`block #${block.number}`, block);
+//
+//   console.dir('transaction in block', block.transactions);
+// });
+//
+// filter.stopWatching();
 
 // Update labels
 $(() => {
   console.log('Document ready');
-  const localNode = new LocalNode();
+
   const solarUnitService = new SolarUnitService();
+  const localNode = new LocalNode();
 
-  $('#send_coins_form').submit((e) => {
-    e.preventDefault();
+  function setSelector(selector, value) {
+    if ($(selector).text() !== String(value)) { $(selector).text(value).effect('highlight'); }
+  }
 
-    const amountText = $('#send_coins_amount').val();
-    const amount = parseInt(amountText, 10);
-    const address = $('#send_coins_address').val();
+  function pollAccount(account) {
+    const date = new Date().toLocaleString();
+    $('#date').text(date);
+    console.log(`${date}: Running poll ${account}`);
 
 
-    solarUnitService.sendCoins(address, amount, localNode.getPrimaryAccount()).then((res) => {
-      console.log('the result of sending units', res);
-      $('#message').addClass('alert alert-info').text(`Coins sent to ${address}`);
-    });
-  });
-
-  setInterval(() => {
     // Account balance in Ether
-    $('#label1').text(localNode.getFormattedBalance());
+    localNode.getFormattedBalance(account, (balance) => {
+      setSelector('#balance', balance);
+    });
 
-    // Block number
-    const number = web3.eth.blockNumber;
-    if ($('#label2').text() != number) { $('#label2').text(number).effect('highlight'); }
+    localNode.getBlockNumber((blockNumber) => {
+      setSelector('#block_number', blockNumber);
+    });
 
     // Solar unit balance
-    SolarUnitService.getBalance(localNode.getPrimaryAccount()).then((solarUnitBalance) => {
+    solarUnitService.getBalance(account).then((solarUnitBalance) => {
       console.info('Retreived from rpc api. Solar unit balance', solarUnitBalance);
-
-      if ($('#label3').text() != solarUnitBalance) {
-        $('#label3').text(solarUnitBalance).effect('highlight');
-      }
+      setSelector('#solar_balance', solarUnitBalance);
     });
-  }, 3000);
+  }
+
+
+  localNode.getPrimaryAccount((account) => {
+    $('#address').text(account);
+
+    $('#send_coins_form').submit((e) => {
+      e.preventDefault();
+
+      const amountText = $('#send_coins_amount').val();
+      const amount = parseInt(amountText, 10);
+      const address = $('#send_coins_address').val();
+
+      $('#message').removeClass().addClass('alert alert-info').text(`Transfer pending to ${address}`);
+
+      solarUnitService.sendCoins(address, amount, account).then((res) => {
+        console.log('the result of sending units', res);
+        $('#message').removeClass().addClass('alert alert-success').text(`Units sent to ${address}`);
+      });
+    });
+
+    setInterval(pollAccount.bind(this, account), 1000);
+  });
 });

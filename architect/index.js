@@ -92,6 +92,30 @@ const gethOptions = [
         value: 'sealer-3',
       },
       {
+        name: 'Sealer #4',
+        value: 'sealer-4',
+      },
+      {
+        name: 'Sealer #5',
+        value: 'sealer-5',
+      },
+      {
+        name: 'Sealer #6',
+        value: 'sealer-6',
+      },
+      {
+        name: 'Sealer #7',
+        value: 'sealer-7',
+      },
+      {
+        name: 'Sealer #8',
+        value: 'sealer-8',
+      },
+      {
+        name: 'Sealer #9',
+        value: 'sealer-9',
+      },
+      {
         name: 'None (unable to seal)',
         value: null,
       },

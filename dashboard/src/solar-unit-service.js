@@ -17,8 +17,9 @@ export default class SolarUnitService {
   getBalance(account) {
     if (!this.solarCoinContract) {
       console.warn('No solar coin contract found');
-      return 0;
     }
+
+//    window.solarCoinContract = this.solarCoinContract;
 
     console.info('This is the solar coin contract', this.solarCoinContract);
 
@@ -41,7 +42,7 @@ export default class SolarUnitService {
       return;
     }
 
-    console.log('calling send coins with', this.solarCoinContract.sendCoin, arguments);
-    return this.solarCoinContract.sendCoin(receiver, amount, { from });
+    console.log('calling send coins with', this.solarCoinContract.sendUnit, arguments);
+    return this.solarCoinContract.sendUnit(receiver, amount, { from });
   }
 }
