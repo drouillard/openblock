@@ -32014,11 +32014,9 @@ board.on('ready', () => {
   // Get latest block sealer
   const led = new five.Led(13);
   const localNode = new __WEBPACK_IMPORTED_MODULE_0__local_node__["a" /* default */]();
-  const primaryAccount = localNode.getPrimaryAccount();
+
   const web3 = __WEBPACK_IMPORTED_MODULE_1__web3_configurer__["a" /* default */].getInstance();
   const httpProvider = web3.currentProvider;
-
-  console.log('Context:', primaryAccount);
 
   const payload = {
     jsonrpc: '2.0',
@@ -32031,7 +32029,7 @@ board.on('ready', () => {
   const turnOffLed = () => { led.stop(); led.off(); };
   const logError = (err) => { turnOffLed(); console.error(err); };
 
-  const checkIfLastSigner = () => {
+  const checkIfLastSigner = (account) => {
     httpProvider.sendAsync(payload, (err, res) => {
     //  console.log('Clique response: err result', err, res);
       const error = err || res.error;
@@ -32063,8 +32061,8 @@ board.on('ready', () => {
       const lastSigner = recents[lastBlockNumber];
 
       // if this node is the last to seal then activate
-      console.log(`The primary account is ${primaryAccount} and the last signer is ${lastSigner}`);
-      if (lastSigner === primaryAccount) {
+      console.log(`The primary account is ${account} and the last signer is ${lastSigner}`);
+      if (lastSigner === account) {
         console.log(Date.now(), 'Machine is last signer. Turning on LED');
         turnOnLed();
       } else {
@@ -32075,7 +32073,12 @@ board.on('ready', () => {
   };
 
   turnOffLed();
-  setInterval(checkIfLastSigner, 2000);
+
+  localNode.getPrimaryAccount((account) => {
+    console.log('Context:', account);
+    setInterval(checkIfLastSigner.bind(this, account), 2000);
+  });
+
 });
 
 
@@ -71431,30 +71434,45 @@ class LocalNode {
     this.web3 = __WEBPACK_IMPORTED_MODULE_0__web3_configurer__["a" /* default */].getInstance();
   }
 
-  getPrimaryAccount() {
-    const accounts = this.web3.personal.listAccounts;
-    return accounts && accounts[0];
+  getPrimaryAccount(next) {
+    console.info('Fetching primary account');
+
+    this.web3.personal.getListAccounts((err, accounts) => {
+      console.info('Fetching personal account. Received results', err, accounts);
+      next((accounts && accounts[0]) || '0x0');
+    });
   }
 
-  getBalance() {
-    const primaryAccount = this.getPrimaryAccount();
-
-    if (!primaryAccount) {
+  getBalance(account, callback) {
+    if (!account) {
       console.warn('Unable to get balance. No primary account exists');
-      return null;
+      callback();
     }
 
-    const balanceWei = this.web3.eth.getBalance(primaryAccount).toNumber();
-    const balance = this.web3.fromWei(balanceWei, 'ether');
+    this.web3.eth.getBalance(account, (err, balance) => {
+      if (err) { console.error(err); callback(); }
 
-    return balance;
+      console.info('Fetching balance. Received results', err, balance);
+      const balanceWei = balance.toNumber();
+
+    // fromWei causing safari to crash
+    //  const etherBalance = this.web3.fromWei(balanceWei, 'ether');
+      const etherBalance = balanceWei / 1e18;
+      callback(err, etherBalance);
+    });
   }
 
-  getFormattedBalance() {
-    const balance = this.getBalance();
-    return balance ? Number(balance).toLocaleString() : 0;
+  getFormattedBalance(account, callback) {
+    this.getBalance(account, (err, balance) => {
+      callback(balance ? Number(balance).toLocaleString() : 0);
+    });
   }
 
+  getBlockNumber(callback) {
+    this.web3.eth.getBlockNumber((err, result) => {
+      callback(result || '0');
+    });
+  }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = LocalNode;
 

@@ -273,8 +273,12 @@ function startEthNode() {
     })
     .exec('cd ~/workspace/dashboard; pm2 delete www; pm2 start ./bin/www', {
       out: console.log.bind(console),
-      exit() {
-        console.log('finished starting geth and dashboard');
+      exit(err) {
+        if (err) {
+          console.log('Error starting geth:', err);
+        } else {
+          console.log('Successfully finished starting geth and dashboard');
+        }
         ask();
       },
     })

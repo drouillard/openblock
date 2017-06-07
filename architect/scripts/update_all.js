@@ -27,7 +27,7 @@ function restartLedProcess(host, username, callback) {
   });
 
   ssh
-  .exec('cd ~/workspace/dashboard; pm2 delete led-notifications; pm2 start --name led-notifications npm -- run sealing-led', {
+  .exec('cd ~/workspace/dashboard; rm -rf ./chain; pm2 delete led-notifications; pm2 start --name led-notifications npm -- run sealing-led', {
     out: console.log.bind(console),
     exit() {
       console.log('finished starting geth and dashboard');

@@ -13,11 +13,9 @@ board.on('ready', () => {
   // Get latest block sealer
   const led = new five.Led(13);
   const localNode = new LocalNode();
-  const primaryAccount = localNode.getPrimaryAccount();
+
   const web3 = Web3Configurer.getInstance();
   const httpProvider = web3.currentProvider;
-
-  console.log('Context:', primaryAccount);
 
   const payload = {
     jsonrpc: '2.0',
@@ -30,7 +28,7 @@ board.on('ready', () => {
   const turnOffLed = () => { led.stop(); led.off(); };
   const logError = (err) => { turnOffLed(); console.error(err); };
 
-  const checkIfLastSigner = () => {
+  const checkIfLastSigner = (account) => {
     httpProvider.sendAsync(payload, (err, res) => {
     //  console.log('Clique response: err result', err, res);
       const error = err || res.error;
@@ -62,8 +60,8 @@ board.on('ready', () => {
       const lastSigner = recents[lastBlockNumber];
 
       // if this node is the last to seal then activate
-      console.log(`The primary account is ${primaryAccount} and the last signer is ${lastSigner}`);
-      if (lastSigner === primaryAccount) {
+      console.log(`The primary account is ${account} and the last signer is ${lastSigner}`);
+      if (lastSigner === account) {
         console.log(Date.now(), 'Machine is last signer. Turning on LED');
         turnOnLed();
       } else {
@@ -74,5 +72,10 @@ board.on('ready', () => {
   };
 
   turnOffLed();
-  setInterval(checkIfLastSigner, 2000);
+
+  localNode.getPrimaryAccount((account) => {
+    console.log('Context:', account);
+    setInterval(checkIfLastSigner.bind(this, account), 2000);
+  });
+
 });
