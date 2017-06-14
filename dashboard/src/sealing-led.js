@@ -8,7 +8,7 @@ const board = new five.Board({
   io: new Galileo(),
 });
 // npm run build-sealing-led && scp bin/sealing-led-final.js root@ip:workspace/dashboard/bin
-// curl -X POST --data '{"jsonrpc":"2.0","method":"clique_getSnapshot","params":["0x1"],"id":1}' localhost:8545
+// curl -X POST --data '{"jsonrpc":"2.0","method":"clique_getSnapshot","params":[],"id":1}' localhost:8545
 board.on('ready', () => {
   // Get latest block sealer
   const led = new five.Led(13);
@@ -77,5 +77,4 @@ board.on('ready', () => {
     console.log('Context:', account);
     setInterval(checkIfLastSigner.bind(this, account), 2000);
   });
-
 });

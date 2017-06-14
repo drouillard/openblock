@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 const pm2 = require('pm2');
 const deployMachine = require('./lib/deployments/machine');
-const deployContract = require('./lib/deployments/contract');
+// const deployContract = require('./lib/deployments/contract');
 
 const devUtils = require('./lib/devUtils');
 
@@ -31,7 +31,7 @@ const commands = {
 };
 
 // Commands that require follow-up questions
-const hierarchicalCommands = [deployNode, startNode, contractDeployment, dev];
+const hierarchicalCommands = [bootnode, contractDeployment, deployNode, dev, startNode];
 
 // Configs
 const ethNodeOptions = [
@@ -48,6 +48,37 @@ const ethNodeOptions = [
   },
 ];
 
+const platformOptions = [
+  {
+    type: 'list',
+    name: 'platform',
+    message: '\n\nSelect platform',
+    choices: [
+      new inquirer.Separator(),
+      {
+        name: 'Intel Edison (386)',
+        value: '386',
+      },
+      {
+        name: 'Raspberry Pi (arm7)',
+        value: 'arm7',
+      },
+      {
+        name: 'Linux (Generic)',
+        value: 'linux',
+      },
+      {
+        name: 'OS X (darwin)',
+        value: 'darwin',
+      },
+      {
+        name: 'Windows (64-bit)',
+        value: 'windows',
+      },
+    ],
+  },
+];
+
 const gethOptions = [
   {
     type: 'list',
@@ -56,16 +87,24 @@ const gethOptions = [
     choices: [
       new inquirer.Separator(),
       {
-        name: 'Intel Edison',
+        name: 'Intel Edison (386)',
         value: '386',
       },
       {
-        name: 'Raspberry Pi',
+        name: 'Raspberry Pi (arm7)',
         value: 'arm7',
       },
       {
         name: 'Linux (Generic)',
         value: 'linux',
+      },
+      {
+        name: 'OS X (darwin)',
+        value: 'darwin',
+      },
+      {
+        name: 'Windows (64-bit)',
+        value: 'windows',
       },
     ],
   },
@@ -180,11 +219,19 @@ function deployBootnode() {
 
     console.log('\n\nDeploying bootnode...');
 
-    pm2.start({
-      script: './deploy-bootnode.js',         // Script to be run
-    }, (e) => {
-      pm2.disconnect();   // Disconnects from PM2
-      if (e) throw err;
+    inquirer.prompt(platformOptions).then((response) => {
+      const platform = response.platform;
+
+      console.log('\n\nDeploying bootnode...');
+
+      pm2.start({
+        script: './deploy-bootnode.js',         // Script to be run
+        args: `platform=${platform}`,
+      }, (e) => {
+        ask();
+        pm2.disconnect();   // Disconnects from PM2
+        if (e) throw err;
+      });
     });
   });
 }
@@ -220,16 +267,17 @@ function deployEthNode() {
 }
 
 function deploySmartContract() {
-  console.log('Deploying smart contract');
+  console.log('Deploying smart contract not implemented');
 
-  inquirer.prompt(smartContractOptions).then((response) => {
-    const host = response.host;
-    const user = response.user;
-    const contractId = response.contractId;
-
-    console.log('Setting up a new machine', host, user);
-    deployContract(host, user, contractId, ask);
-  });
+  ask();
+  // inquirer.prompt(smartContractOptions).then((response) => {
+  //   const host = response.host;
+  //   const user = response.user;
+  //   const contractId = response.contractId;
+  //
+  //   console.log('Setting up a new machine', host, user);
+  //   deployContract(host, user, contractId, ask);
+  // });
 }
 
 function startEthNode() {
@@ -324,7 +372,7 @@ const options = [
         },
       },
       {
-        name: 'Deploy Bootnode (OS X only. Others start manually)',
+        name: 'Deploy Bootnode (OS X / Windows 64-bit only. Others start manually)',
         value: {
           key: commands.bootnode,
           func: deployBootnode,
