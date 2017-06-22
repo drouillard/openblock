@@ -23,7 +23,7 @@ This project uses Intel Edison's with Arduino boards.
 
 3. Set the name of the Edison. Any name is fine. We would recommend avoid whitespace or special characters.
 
-4. Set password. The password should be '12345678'. This is set as a project-level global config to ensure ease of administration. You can adapt this as needed, but all machines must be set up the same or the projet neeeds to be modified to handle different passwords for different machines.
+4. Set password. The password should be '12345678'. This is set as a project-level global config to ensure ease of administration. You can adapt this as needed, but all machines must be set up the same or the project needs to be modified to handle different passwords for different machines.
 
 5. Connect to the router. All machines must connect to the same router. The way to test this is to ensure you can ssh from one machine to another. If you have ssh access you should be set.
 
@@ -46,7 +46,18 @@ Order of deployment
 5. Verify block count is incrementing. Once it reaches 5 or so then you can be confident it is working.
 6. Deploy Solar unit contract (or other supported contracts)
 7. Deploy remaining machines
- 
+
+## Accessing Edisons
+
+````
+ssh root@<edison ip>
+````
+
+## Setting Up External Leds
+
+On the Intel Edison Aurduino Board you will need to plug the led into digital port 13 and digital port GND.
+
+http://johnny-five.io/examples/edison-io-arduino/
 
 ## Routing alternatives
 
@@ -55,3 +66,9 @@ If you are unable to set up a fixed hardware router you could consider the alter
 * Modify project to use Internet-based bootnode(s). The existing Ethereum bootnodes could work in theory, although in practice it was not observed to work within a reliable 60-second window.
 * Modify the DNS settings on the Ethereum nodes to allow for fixed IPs
 * Setup a zero DNS config system
+
+## Security
+
+This program is meant to be used in a secure environment. **Do not use on machines that store real Ether or other valuable assets**. For the ease of use passwords are pre-established and a number of compromises are made such as allowing universal access to the Ethereum nodes.
+
+If you wish to modify please submit a PR.

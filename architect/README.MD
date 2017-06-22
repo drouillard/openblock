@@ -28,7 +28,7 @@ The Intel Edisons will be configured to run `geth` in mining mode and to run a d
 
 ## Set up and run
 
-In this directory run
+In the `architect` directory run
 
 Install dependencies (one time)
 
@@ -39,8 +39,49 @@ npm install
 Run Architect
 
 ```
-npm start
+sudo node index.js
 ```
+
+# Set up pm2
+
+Install pm2 globally. It is recommended to run pm2 in a separate terminal
+
+````
+npm i -g pm2
+````
+
+List process
+
+````
+pm2 list
+````
+
+
+# Set up Eth Stats Dashboard
+
+Run the architect and then select the option to start the Eth Stats dashboard. You should be able to then see the dashboard at
+http://localhost:3000
+
+# Set up the bootnode
+
+Run the architect and then select the option to start the Eth Stats bootnode.
+
+Then install pm2 globally on your machine and use it examine log
+
+# Deploy the contract
+
+Install truffle
+
+````
+cd dashboard/solarunit
+npm install -g truffle
+````
+
+Inside the solarunit folder you need to deploy contract to network.
+
+````
+truffle deploy
+````
 
 # FAQs
 
