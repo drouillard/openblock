@@ -7,8 +7,21 @@ const wsSecret = require('../dashboard/config/globals.json').ethStatsPassword;
 const destinationFolder = path.join(__dirname, 'tmp', 'eth-stats');
 
 function installDependencies() {
-  console.log('Installing dependencies');
-  execSync('npm install && npm install -g grunt-cli && grunt', { cwd: destinationFolder });
+  // download eth stats
+  console.log('Downloading eth stats to ', destinationFolder);
+
+  exec(`git clone --depth=1 https://github.com/karalabe/eth-netstats ${destinationFolder}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+
+    console.log('Installing dependencies');
+    execSync('npm install && npm install -g grunt-cli && grunt', { cwd: destinationFolder });
+    run();
+  });
 }
 
 function run() {
@@ -26,16 +39,3 @@ if (fs.existsSync(destinationFolder)) {
   installDependencies();
   run();
 }
-
-// download eth stats
-console.log('Downloading eth stats to ', destinationFolder);
-
-exec(`git clone --depth=1 https://github.com/karalabe/eth-netstats ${destinationFolder}`, (error, stdout, stderr) => {
-  if (error) {
-    console.error(`exec error: ${error}`);
-    return;
-  }
-  console.log(`stdout: ${stdout}`);
-  console.log(`stderr: ${stderr}`);
-  run();
-});
