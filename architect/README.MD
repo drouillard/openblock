@@ -89,6 +89,20 @@ truffle deploy
 
 Puppeth uses docker and does not reliably run on Intel Edisons or Rapsberry Pis.
 
+- How do I check the logs of process failing?
+
+Processes run in pm2
+
+```
+
+# list all processes
+
+sudo pm2 list
+
+
+```
+
+
 
 ## Developing
 
