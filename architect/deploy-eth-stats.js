@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const wsSecret = require('../dashboard/config/globals.json').ethStatsPassword;
 
-const destinationFolder = path.join(__dirname, 'tmp', 'eth-stats');
+const destinationFolder = path.join(__dirname, 'tmp', 'eth-netstats');
 
 function installDependencies() {
   // download eth stats
