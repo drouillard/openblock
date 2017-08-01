@@ -2,6 +2,10 @@
 
 This project is designed to make it easy to deploy and manage a private network of Ethereum nodes.
 
+## Getting Started
+
+See the README in Architect directory for directions on how to get started.
+
 ## Architect
 
 This project is modeled after [puppeth](https://blog.ethereum.org/2017/04/14/geth-1-6-puppeth-master/). It handles the setup and configuration of machines. Unlike puppeth which uses docker, the main requirement of Architect is a version of Node V4+

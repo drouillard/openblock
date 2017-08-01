@@ -248,8 +248,13 @@ function deployEthStats() {
     pm2.start({
       script: './deploy-eth-stats.js',         // Script to be run
     }, (e) => {
-      pm2.disconnect();   // Disconnects from PM2
-      if (e) throw err;
+      pm2.disconnect();
+
+      if (e) {
+        console.log('Ethereum Stats Dashboard deployed to local machine.', e);
+        return;
+      }
+      console.log('Ethereum Stats Dashboard deployed to local machine.');
     });
   });
 }
@@ -427,7 +432,7 @@ function ask() {
   inquirer.prompt(options).then((responses) => {
     const command = responses.command;
 
-    console.log('Proceessing command: ', command);
+    // console.log('Proceessing command: ', command);
 
     if (!command || command.key === commands.exit) {
       return;
@@ -440,7 +445,6 @@ function ask() {
     // Ask until user quits
     // Do not ask yet if follow-up questions have to be asked
     if (hierarchicalCommands.indexOf(command.key) === -1) {
-      console.log('Asking again');
       ask();
     }
   });

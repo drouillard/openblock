@@ -11,6 +11,11 @@ Must have the following installed
 * Node.js v6+
 * git
 
+
+### Installing Node
+
+[nvm](https://github.com/creationix/nvm) must be used to install Node.js. Otherwise you will encounter permissions issues.
+
 ### The Edisons
 
 Must be configured
